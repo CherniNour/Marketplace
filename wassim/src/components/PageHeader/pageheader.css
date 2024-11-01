@@ -1,0 +1,25 @@
+.marketplace-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #3c6382; /* Dark color for text */
+  }
+  
+.marketplace-slogan {
+    font-size: 1.25rem;
+    color: #3c6382; /* Softer secondary color */
+  }
+  .cta-button {
+    background-color: #007bff; /* A button color from the logo's palette */
+    border-color: #007bff;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+  }
+  .cta-button:hover {
+    background-color: #60a3bc; /* Replace with your desired color */
+    border-color: #60a3bc;
+    color: white; /* Ensuring text remains visible */
+}
+.search-bar-container {
+    position: relative; /* ou absolute si nécessaire */
+    z-index: 10; /* Ajustez selon vos besoins */
+}

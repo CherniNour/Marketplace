@@ -1,0 +1,11 @@
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-image: none; /* Hide the default icon background */
+  display: none;
+}
+.carousel-img {
+    margin-top: 100px;
+
+    height: 450px; 
+    object-fit: cover; 
+}
