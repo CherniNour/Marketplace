@@ -1,0 +1,18 @@
+@media (min-width: 1025px) {
+    .h-custom {
+    height: 100vh !important;
+    }
+}
+.no-hover {
+    transform: none; /* Désactive l'agrandissement au survol */
+    transition: none; /* Supprime la transition de mise à l'échelle */
+}
+
+.no-hover:hover {
+    transform: none;
+}
+
+.font-weight-bold {
+    font-weight: 700; /* Meilleure lisibilité pour le titre */
+}
+
