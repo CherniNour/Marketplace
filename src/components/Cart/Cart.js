@@ -7,11 +7,14 @@ import { useCart } from '../CartContext/CartContext';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer"; 
 import { auth, db } from '../../firebase.config';
-import { doc, getDoc, arrayRemove, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 function Cart() {
     const { cartItems, setCartItems, setCartCount } = useCart();
     const [subtotal, setSubtotal] = useState(0);
+    const [showCreditCardForm, setShowCreditCardForm] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -46,13 +49,32 @@ function Cart() {
             const cartRef = doc(db, "Panier", userUid);
             await updateDoc(cartRef, {
                 items: arrayRemove(product),
-                nbroflines: (cartItems.length - 1)
+                nbroflines: cartItems.length - 1
             });
 
             console.log("Item successfully removed from Firestore and local cart");
         } catch (error) {
             console.error("Error removing item from Firestore:", error);
         }
+    };
+
+    const updateProductQuantity = async (product, delta) => {
+        const updatedItems = cartItems.map((item) =>
+            item.title === product.title ? { ...item, quantity: item.quantity + delta } : item
+        ).filter((item) => item.quantity > 0);
+
+        const newCartCount = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+        setCartItems(updatedItems);
+        setCartCount(newCartCount);
+
+        const userUid = auth.currentUser.uid;
+        const cartRef = doc(db, "Panier", userUid);
+
+        // Update Firestore
+        await updateDoc(cartRef, {
+            items: updatedItems,
+            nbroflines: newCartCount
+        });
     };
 
     return (
@@ -97,10 +119,12 @@ function Cart() {
                                                                 </div>
                                                             </div>
                                                             <div className="d-flex flex-row align-items-center">
-                                                                <div style={{ width: "50px" }}>
-                                                                    <MDBTypography tag="h5" className="fw-normal mb-0">
+                                                                <div style={{ width: "50px", display: "flex", alignItems: "center" }}>
+                                                                    <span onClick={() => updateProductQuantity(product, -1)} style={{ cursor: "pointer", fontSize: "20px", marginRight: "5px" }}>-</span>
+                                                                    <MDBTypography tag="h5" className="fw-normal mb-0 mx-2">
                                                                         {product.quantity}
                                                                     </MDBTypography>
+                                                                    <span onClick={() => updateProductQuantity(product, 1)} style={{ cursor: "pointer", fontSize: "20px", marginLeft: "5px" }}>+</span>
                                                                 </div>
                                                                 <div style={{ width: "80px" }}>
                                                                     <MDBTypography tag="h5" className="mb-0">
@@ -117,40 +141,10 @@ function Cart() {
                                             ))}
                                         </MDBCol>
 
-                                        {/* Card Details Section */}
+                                        {/* Payment Options and Total Section */}
                                         <MDBCol lg="5">
                                             <MDBCard className="rounded-3 mt-3" style={{ backgroundColor: "#f8f9fa" }}>
                                                 <MDBCardBody className="p-4">
-                                                    <div className="d-flex justify-content-between align-items-center mb-4">
-                                                        <MDBTypography tag="h4" className="font-weight-bold">
-                                                            Card Details
-                                                        </MDBTypography>
-                                                    </div>
-                                                    <p className="small">Card type</p>
-                                                    <div>
-                                                        <MDBIcon fab icon="cc-mastercard fa-2x me-2" />
-                                                        <MDBIcon fab icon="cc-visa fa-2x me-2" />
-                                                        <MDBIcon fab icon="cc-amex fa-2x me-2" />
-                                                        <MDBIcon fab icon="cc-paypal fa-2x me-2" />
-                                                    </div>
-
-                                                    <form className="mt-4">
-                                                        <MDBInput className="mb-4" label="Cardholder's Name" type="text" size="lg" placeholder="Cardholder's Name" />
-
-                                                        <MDBInput className="mb-4" label="Card Number" type="text" size="lg" minLength="19" maxLength="19" placeholder="1234 5678 9012 3457" />
-
-                                                        <MDBRow className="mb-4">
-                                                            <MDBCol md="6">
-                                                                <MDBInput label="Expiration" type="text" size="lg" minLength="7" maxLength="7" placeholder="MM/YYYY" />
-                                                            </MDBCol>
-                                                            <MDBCol md="6">
-                                                                <MDBInput label="Cvv" type="text" size="lg" minLength="3" maxLength="3" placeholder="•••" />
-                                                            </MDBCol>
-                                                        </MDBRow>
-                                                    </form>
-
-                                                    <hr />
-
                                                     <div className="d-flex justify-content-between">
                                                         <p className="mb-2">Subtotal</p>
                                                         <p className="mb-2">{subtotal.toFixed(2)}DT</p>
@@ -160,16 +154,41 @@ function Cart() {
                                                         <p className="mb-2">07.00DT</p>
                                                     </div>
                                                     <div className="d-flex justify-content-between">
-                                                        <p className="mb-2">Total (Incl. taxes)</p>
-                                                        <p className="mb-2">{(subtotal + 7).toFixed(2)}DT</p>
+                                                        <p className="mb-2 font-weight-bold">Total (Incl. taxes)</p>
+                                                        <p className="mb-2 font-weight-bold">{(subtotal + 7).toFixed(2)}DT</p>
                                                     </div>
 
-                                                    <MDBBtn color="info" block size="lg">
-                                                        <div className="d-flex justify-content-between">
-                                                            <span>{(subtotal + 7).toFixed(2)}DT</span>
-                                                            <span>Checkout <i className="fas fa-long-arrow-alt-right ms-2"></i></span>
+                                                    <hr />
+
+                                                    <div className="d-flex flex-column">
+                                                        <MDBBtn color="info" block size="lg" onClick={() => navigate('/confirm')}>
+                                                            Pay on Delivery
+                                                        </MDBBtn>
+                                                        <MDBBtn color="primary" block size="lg" onClick={() => setShowCreditCardForm(true)} className="mt-2">
+                                                            Pay Online
+                                                        </MDBBtn>
+                                                    </div>
+
+                                                    {showCreditCardForm && (
+                                                        <div className="mt-4">
+                                                            <form>
+                                                                <MDBInput className="mb-4" label="Cardholder's Name" type="text" size="lg" placeholder="Cardholder's Name" />
+                                                                <MDBInput className="mb-4" label="Card Number" type="text" size="lg" minLength="19" maxLength="19" placeholder="1234 5678 9012 3457" />
+                                                                <MDBRow className="mb-4">
+                                                                    <MDBCol md="6">
+                                                                        <MDBInput label="Expiration" type="text" size="lg" minLength="7" maxLength="7" placeholder="MM/YYYY" />
+                                                                    </MDBCol>
+                                                                    <MDBCol md="6">
+                                                                        <MDBInput label="Cvv" type="text" size="lg" minLength="3" maxLength="3" placeholder="•••" />
+                                                                    </MDBCol>
+                                                                </MDBRow>
+
+                                                                <MDBBtn color="success" block size="lg" onClick={() => navigate('/confirm')}>
+                                                                    Confirm Purchase
+                                                                </MDBBtn>
+                                                            </form>
                                                         </div>
-                                                    </MDBBtn>
+                                                    )}
                                                 </MDBCardBody>
                                             </MDBCard>
                                         </MDBCol>
