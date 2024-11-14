@@ -1,25 +1,22 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom'; // Pour la redirection
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system';
-import { Autocomplete, Button, Popper } from '@mui/material';
-import { unstable_useForkRef as useForkRef } from '@mui/utils';
+import { Popper, useAutocomplete } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useAutocomplete } from '@mui/base';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClearIcon from '@mui/icons-material/Clear';
+import { grey } from '@mui/material/colors';
+import { db } from '../../firebase.config';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { useForkRef } from '@mui/material/utils';
 
 const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, ref) {
-  const {
-    disableClearable = false,
-    disabled = false,
-    readOnly = false,
-    ...other
-  } = props;
+  const { disableClearable = false, disabled = false, readOnly = false, ...other } = props;
+  const navigate = useNavigate(); // Utilisation du hook pour la navigation
 
   const {
     getRootProps,
     getInputProps,
-    getPopupIndicatorProps,
     getClearProps,
     getListboxProps,
     getOptionProps,
@@ -30,66 +27,63 @@ const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, r
     anchorEl,
     setAnchorEl,
     groupedOptions,
+    inputValue,
+    setInputValue
   } = useAutocomplete({
     ...props,
-    componentName: 'BaseAutocompleteIntroduction',
+    componentName: 'BaseAutocomplete',
+    openOnFocus: false,
   });
 
   const hasClearIcon = !disableClearable && !disabled && dirty && !readOnly;
-
   const rootRef = useForkRef(ref, setAnchorEl);
+
+  const shouldShowSuggestions = inputValue.length > 0;
+
+  // Fonction pour gérer la recherche
+  const handleSearch = () => {
+    sessionStorage.setItem('searchQuery', inputValue); // Enregistrer la recherche dans sessionStorage
+    navigate('/ProductResearch'); // Rediriger vers la page de recherche
+  };
+
+  // Gérer la touche "Entrée"
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <React.Fragment>
-      <StyledAutocompleteRoot
-        {...getRootProps(other)}
-        ref={rootRef}
-        className={focused ? 'focused' : undefined}
-      >
+      <StyledAutocompleteRoot {...getRootProps(other)} ref={rootRef} className={focused ? 'focused' : undefined}>
         <StyledInput
           id={id}
           disabled={disabled}
           readOnly={readOnly}
           {...getInputProps()}
           placeholder="Search..."
+          onKeyDown={handleKeyDown} // Détecter la touche "Entrée"
         />
         {hasClearIcon && (
           <StyledClearIndicator {...getClearProps()}>
             <ClearIcon />
           </StyledClearIndicator>
         )}
-        <StyledPopupIndicator
-          {...getPopupIndicatorProps()}
-          className={popupOpen ? 'popupOpen' : undefined}
-        >
-          <ArrowDropDownIcon />
-        </StyledPopupIndicator>
+        <StyledSearchIcon onClick={handleSearch}> {/* Clic sur la loupe */}
+          <SearchIcon />
+        </StyledSearchIcon>
       </StyledAutocompleteRoot>
-      {anchorEl ? (
-        <Popper
-          open={popupOpen}
-          anchorEl={anchorEl}
-          slots={{
-            root: StyledPopper,
-          }}
-          modifiers={[
-            { name: 'flip', enabled: false },
-            { name: 'preventOverflow', enabled: false },
-          ]}
-        >
+      {anchorEl && shouldShowSuggestions && groupedOptions.length > 0 && (
+        <Popper open={popupOpen} anchorEl={anchorEl} style={{ zIndex: 1001 }}>
           <StyledListbox {...getListboxProps()}>
             {groupedOptions.map((option, index) => {
               const optionProps = getOptionProps({ option, index });
-
               return <StyledOption {...optionProps} key={option.label}>{option.label}</StyledOption>;
             })}
-
-            {groupedOptions.length === 0 && (
-              <StyledNoOptions>No results</StyledNoOptions>
-            )}
+            {groupedOptions.length === 0 && <StyledNoOptions>No results</StyledNoOptions>}
           </StyledListbox>
         </Popper>
-      ) : null}
+      )}
     </React.Fragment>
   );
 });
@@ -100,218 +94,84 @@ CustomAutocomplete.propTypes = {
   readOnly: PropTypes.bool,
 };
 
-export default function AutocompleteIntroduction() {
-  return <CustomAutocomplete options={top100Films} />;
+export default function Barrederecherche() {
+  const [products, setProducts] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      const q = query(collection(db, 'Product'));
+      const querySnapshot = await getDocs(q);
+      const productsData = querySnapshot.docs.map(doc => ({
+        label: doc.data().Product_name,
+      }));
+      setProducts(productsData);
+    };
+    fetchProducts();
+  }, []);
+
+  return <CustomAutocomplete options={products} />;
 }
 
-const blue = {
-  100: '#DAECFF',
-  200: '#99CCF3',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0059B2',
-  900: '#003A75',
-};
-
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-const StyledAutocompleteRoot = styled('div')(
-  ({ theme }) => `
+const StyledAutocompleteRoot = styled('div')`
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 400;
   border-radius: 8px;
-  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[500]};
-  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-  box-shadow: 0px 2px 4px ${
-    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
-  };
   display: flex;
   gap: 5px;
   padding-right: 5px;
   overflow: hidden;
   width: 320px;
-
-  &.focused {
-    border-color: ${blue[400]};
-    box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[700] : blue[200]};
-  }
-
-  &:hover {
-    background: ${theme.palette.mode === 'dark' ? grey[800] : grey[50]};
-    border-color: ${theme.palette.mode === 'dark' ? grey[600] : grey[300]};
-  }
-
-  &:focus-visible {
-    outline: 0;
-  }
-`,
-);
-
-const StyledInput = styled('input')(
-  ({ theme }) => `
-  font-size: 0.875rem;
-  font-family: inherit;
-  font-weight: 400;
-  line-height: 1.5;
-  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  background: inherit;
-  border: none;
-  border-radius: inherit;
-  padding: 8px 12px;
-  outline: 0;
-  flex: 1 0 auto;
-`,
-);
-
-// ComponentPageTabs has z-index: 1000
-const StyledPopper = styled('div')`
-  position: relative;
-  z-index: 1001;
-  width: 320px;
+  border: 1px solid ${grey[300]};
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const StyledListbox = styled('ul')(
-  ({ theme }) => `
+const StyledInput = styled('input')`
+  font-size: 0.875rem;
+  padding: 8px 12px;
+  flex: 1 0 auto;
+  border: none;
+  outline: 0;
+`;
+
+const StyledSearchIcon = styled('div')`
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  cursor: pointer;
+`;
+
+const StyledClearIndicator = styled('div')`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledListbox = styled('ul')`
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
-  box-sizing: border-box;
-  padding: 6px;
-  margin: 12px 0;
-  min-width: 320px;
-  border-radius: 12px;
-  overflow: auto;
-  outline: 0;
   max-height: 300px;
-  z-index: 1;
-  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 6px ${
-    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.3)' : 'rgba(0,0,0, 0.05)'
-  };
-  `,
-);
-
-const StyledOption = styled('li')(
-  ({ theme }) => `
-  list-style: none;
-  padding: 8px;
+  overflow: auto;
+  width: 320px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid ${grey[300]};
   border-radius: 8px;
-  cursor: default;
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  &[aria-selected=true] {
-    background-color: ${theme.palette.mode === 'dark' ? blue[900] : blue[100]};
-    color: ${theme.palette.mode === 'dark' ? blue[100] : blue[900]};
-  }
-
-  &.Mui-focused,
-  &.Mui-focusVisible {
-    background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
-    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  }
-
-  &.Mui-focusVisible {
-    box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[500] : blue[200]};
-  }
-
-  &[aria-selected=true].Mui-focused,
-  &[aria-selected=true].Mui-focusVisible {
-    background-color: ${theme.palette.mode === 'dark' ? blue[900] : blue[100]};
-    color: ${theme.palette.mode === 'dark' ? blue[100] : blue[900]};
-  }
-  `,
-);
-
-const StyledPopupIndicator = styled(Button)(
-  ({ theme }) => `
-    outline: 0;
-    box-shadow: none;
-    border: 0;
-    border-radius: 4px;
-    background-color: transparent;
-    align-self: center;
-    padding: 0 2px;
-
-    &:hover {
-      background-color: ${theme.palette.mode === 'dark' ? grey[700] : blue[100]};
-      cursor: pointer;
-    }
-
-    & > svg {
-      transform: translateY(2px);
-    }
-
-    &.popupOpen > svg {
-      transform: translateY(2px) rotate(180deg);
-    }
-  `,
-);
-
-const StyledClearIndicator = styled(Button)(
-  ({ theme }) => `
-    outline: 0;
-    box-shadow: none;
-    border: 0;
-    border-radius: 4px;
-    background-color: transparent;
-    align-self: center;
-    padding: 0 2px;
-
-    &:hover {
-      background-color: ${theme.palette.mode === 'dark' ? grey[700] : blue[100]};
-      cursor: pointer;
-    }
-  `,
-);
-
-const StyledNoOptions = styled('li')`
-  list-style: none;
-  padding: 8px;
-  cursor: default;
 `;
 
-const top100Films = [
-  { label: 'The Shawshank Redemption', year: 1994 },
-  { label: 'The Godfather', year: 1972 },
-  { label: 'The Godfather: Part II', year: 1974 },
-  { label: 'Pulp Fiction', year: 1994 },
-  { label: 'The Good, the Bad and the Ugly', year: 1966 },
-  { label: 'The Dark Knight', year: 2008 },
-  { label: '12 Angry Men', year: 1957 },
-  { label: "Schindler's List", year: 1993 },
-  { label: 'The Lord of the Rings: The Return of the King', year: 2003 },
-  { label: 'Fight Club', year: 1999 },
-  { label: 'Forrest Gump', year: 1994 },
-  { label: 'In the Name of the Father', year: 1993 },
-  { label: 'The Goodfellas', year: 1990 },
-  { label: 'The Matrix', year: 1999 },
-  { label: 'Avengers: Infinity War', year: 2018 },
-  { label: 'Saving Private Ryan', year: 1998 },
-  { label: 'The Silence of the Lambs', year: 1991 },
-  { label: 'City of God', year: 2002 },
-  { label: 'Se7en', year: 1995 },
-  { label: 'The Usual Suspects', year: 1995 },
-  { label: 'Léon: The Professional', year: 1994 },
-];
+const StyledOption = styled('li')`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: ${grey[200]};
+  }
+`;
 
+const StyledNoOptions = styled('li')`
+  padding: 8px;
+  cursor: default;
+  color: ${grey[600]};
+  text-align: center;
+`;

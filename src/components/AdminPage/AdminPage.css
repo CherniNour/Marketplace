@@ -1,0 +1,33 @@
+/* Sidebar styles */
+.sidebar {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-right: 2px solid #ddd;
+  }
+  
+  /* Main content styles */
+  .main-content {
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  /* Styles pour les boutons */
+  .btn-danger {
+    margin-left: 10px;
+  }
+  
+  /* Table styling */
+  table {
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  table th, table td {
+    text-align: center;
+  }
+  
+  /* Dropdown Button */
+  .dropdown-toggle {
+    width: 100%;
+  }
+  

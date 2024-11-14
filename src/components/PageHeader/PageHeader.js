@@ -81,12 +81,15 @@ function PageHeader() {
     const handleAdminPageClick = () => {
         navigate("/admin");
     };
+    const handleLogoClick = () => {
+        navigate("/home");
+    };
 
     return (
         <div className="container-fluid px-4 py-5 my-5 text-center position-relative">
             <div className="d-flex justify-content-center align-items-center mb-4 position-relative">
                 <div className="position-absolute start-0">
-                    <img src='my-icon.ico' alt="El Hanout Logo" className="logo" style={{ width: '300px', height: '300px' }} />
+                    <img src='my-icon.ico' alt="El Hanout Logo" className="logo" style={{ width: '300px', height: '300px', cursor:'pointer' }} onClick={handleLogoClick}/>
                 </div>
 
                 <div className="flex-grow-1">

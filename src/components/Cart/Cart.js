@@ -25,13 +25,11 @@ function Cart() {
                     setCartItems(cartData.items || []);
                     setCartCount(cartData.nbroflines || 0);
                 } else {
-                    console.log("No cart found for user:", auth.currentUser.uid);
                     setCartItems([]);
                     setCartCount(0);
                 }
             }
         };
-
         fetchCartItems();
     }, [setCartItems, setCartCount]);
 
@@ -42,17 +40,18 @@ function Cart() {
 
     const handleDelete = async (product) => {
         try {
-            setCartItems((prevItems) => prevItems.filter((item) => item.title !== product.title));
-            setCartCount((prevCount) => prevCount - product.quantity);
+            const updatedItems = cartItems.filter((item) => item.Product_name !== product.Product_name);
+            const newCartCount = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+
+            setCartItems(updatedItems);
+            setCartCount(newCartCount);
 
             const userUid = auth.currentUser.uid;
             const cartRef = doc(db, "Panier", userUid);
             await updateDoc(cartRef, {
                 items: arrayRemove(product),
-                nbroflines: cartItems.length - 1
+                nbroflines: newCartCount
             });
-
-            console.log("Item successfully removed from Firestore and local cart");
         } catch (error) {
             console.error("Error removing item from Firestore:", error);
         }
@@ -60,8 +59,8 @@ function Cart() {
 
     const updateProductQuantity = async (product, delta) => {
         const updatedItems = cartItems.map((item) =>
-            item.title === product.title ? { ...item, quantity: item.quantity + delta } : item
-        ).filter((item) => item.quantity > 0);
+            item.Product_name === product.Product_name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+        );
 
         const newCartCount = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
         setCartItems(updatedItems);
@@ -69,8 +68,6 @@ function Cart() {
 
         const userUid = auth.currentUser.uid;
         const cartRef = doc(db, "Panier", userUid);
-
-        // Update Firestore
         await updateDoc(cartRef, {
             items: updatedItems,
             nbroflines: newCartCount
@@ -88,17 +85,13 @@ function Cart() {
                             <MDBCard>
                                 <MDBCardBody className="p-4">
                                     <MDBRow>
-                                        {/* Cart Items Section */}
                                         <MDBCol lg="7">
                                             <MDBTypography tag="h5">
                                                 <a href="/home" className="text-body">Continue shopping</a>
                                             </MDBTypography>
                                             <hr />
                                             <div className="d-flex justify-content-between align-items-center mb-4">
-                                                <div>
-                                                    <p className="mb-1">Shopping cart</p>
-                                                    <p className="mb-0">You have {cartItems.length} items in your cart</p>
-                                                </div>
+                                                <p className="mb-0">You have {cartItems.length} items in your cart</p>
                                             </div>
 
                                             {cartItems.map((product, index) => (
@@ -111,26 +104,40 @@ function Cart() {
                                                                     fluid
                                                                     className="rounded-3"
                                                                     style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                                                    alt={product.title}
+                                                                    alt={product.Product_name}
                                                                 />
                                                                 <div className="ms-3">
-                                                                    <MDBTypography tag="h5">{product.title}</MDBTypography>
-                                                                    <p className="small mb-0">{product.description}</p>
+                                                                    <MDBTypography tag="h5">{product.Product_name}</MDBTypography>
                                                                 </div>
                                                             </div>
                                                             <div className="d-flex flex-row align-items-center">
-                                                                <div style={{ width: "50px", display: "flex", alignItems: "center" }}>
-                                                                    <span onClick={() => updateProductQuantity(product, -1)} style={{ cursor: "pointer", fontSize: "20px", marginRight: "5px" }}>-</span>
+                                                                <div style={{ width: "50px", display: "flex", alignItems: "center", marginRight: "15px" }}>
+                                                                    <span 
+                                                                        onClick={() => updateProductQuantity(product, -1)} 
+                                                                        style={{ cursor: "pointer", fontSize: "20px", marginRight: "5px" }}
+                                                                    >
+                                                                        -
+                                                                    </span>
                                                                     <MDBTypography tag="h5" className="fw-normal mb-0 mx-2">
                                                                         {product.quantity}
                                                                     </MDBTypography>
-                                                                    <span onClick={() => updateProductQuantity(product, 1)} style={{ cursor: "pointer", fontSize: "20px", marginLeft: "5px" }}>+</span>
+                                                                    <span 
+                                                                        onClick={() => updateProductQuantity(product, 1)} 
+                                                                        style={{ cursor: "pointer", fontSize: "20px", marginLeft: "5px" }}
+                                                                    >
+                                                                        +
+                                                                    </span>
                                                                 </div>
-                                                                <div style={{ width: "80px" }}>
-                                                                    <MDBTypography tag="h5" className="mb-0">
-                                                                        {product.price}DT
+
+                                                                <div style={{ display: "flex", alignItems: "center", minWidth: "80px", justifyContent: "flex-start" }}>
+                                                                    <MDBTypography tag="h5" className="mb-0" style={{ whiteSpace: "nowrap" }}>
+                                                                        {(parseFloat(product.price) * product.quantity).toFixed(2)}
                                                                     </MDBTypography>
+                                                                    <span style={{ marginLeft: "5px", fontSize: "16px", whiteSpace: "nowrap" }}>
+                                                                        DT
+                                                                    </span>
                                                                 </div>
+
                                                                 <a onClick={() => handleDelete(product)} style={{ color: "#cecece", cursor: "pointer" }}>
                                                                     <MDBIcon fas icon="trash-alt"/>
                                                                 </a>
@@ -141,27 +148,26 @@ function Cart() {
                                             ))}
                                         </MDBCol>
 
-                                        {/* Payment Options and Total Section */}
                                         <MDBCol lg="5">
                                             <MDBCard className="rounded-3 mt-3" style={{ backgroundColor: "#f8f9fa" }}>
                                                 <MDBCardBody className="p-4">
                                                     <div className="d-flex justify-content-between">
                                                         <p className="mb-2">Subtotal</p>
-                                                        <p className="mb-2">{subtotal.toFixed(2)}DT</p>
+                                                        <p className="mb-2">{subtotal.toFixed(2)} DT</p>
                                                     </div>
                                                     <div className="d-flex justify-content-between">
                                                         <p className="mb-2">Shipping</p>
-                                                        <p className="mb-2">07.00DT</p>
+                                                        <p className="mb-2">07.00 DT</p>
                                                     </div>
                                                     <div className="d-flex justify-content-between">
                                                         <p className="mb-2 font-weight-bold">Total (Incl. taxes)</p>
-                                                        <p className="mb-2 font-weight-bold">{(subtotal + 7).toFixed(2)}DT</p>
+                                                        <p className="mb-2 font-weight-bold">{(subtotal + 7).toFixed(2)} DT</p>
                                                     </div>
 
                                                     <hr />
 
                                                     <div className="d-flex flex-column">
-                                                        <MDBBtn color="info" block size="lg" onClick={() => navigate('/confirm')}>
+                                                        <MDBBtn color="info" block size="lg" onClick={() => navigate('/order-summary')}>
                                                             Pay on Delivery
                                                         </MDBBtn>
                                                         <MDBBtn color="primary" block size="lg" onClick={() => setShowCreditCardForm(true)} className="mt-2">
@@ -183,8 +189,8 @@ function Cart() {
                                                                     </MDBCol>
                                                                 </MDBRow>
 
-                                                                <MDBBtn color="success" block size="lg" onClick={() => navigate('/confirm')}>
-                                                                    Confirm Purchase
+                                                                <MDBBtn color="success" block size="lg" onClick={() => navigate('/order-summary')}>
+                                                                    Pay
                                                                 </MDBBtn>
                                                             </form>
                                                         </div>
