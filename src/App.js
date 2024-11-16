@@ -11,7 +11,7 @@ import Add_product from './components/Add_product/Add_product';
 import AdminPage from './components/AdminPage/AdminPage';
 import PacmanLoader from './components/PacmanLoader/PacmanLoader'; 
 import Research from './components/Research/Research';
-import Order from './components/Order_tracking/Order_tracking';
+import OrdersList from './components/Order_tracking/Order_list';
 import Confirm_order from './components/Order_summary/Order_summary';
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
               <Route path="/Your cart" element={<Cart />} />
               <Route path="/Add your product" element={<Add_product />} />       
               <Route path="/Admin" element={<AdminPage />} />
-              <Route path="/My-order" element={<Order />} />
+              <Route path="/My-orders" element={<OrdersList />} />
               <Route path="/PacmanLoader" element={<PacmanLoader />} />
               <Route path="/ProductResearch" element={<Research />} />
               <Route path="/order-summary" element={<Confirm_order />} />

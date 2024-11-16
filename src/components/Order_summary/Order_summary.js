@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MDBBtn, MDBCard, MDBCardBody, MDBCol, MDBIcon, MDBInput, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase.config';
-import { doc, setDoc, getDoc, collection, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './Order_summary.css';
 
 export default function Confirm_order() {
@@ -21,16 +21,16 @@ export default function Confirm_order() {
       try {
         const user = auth.currentUser;
         if (user) {
-          const userRef = doc(db, "User", user.uid);
+          const userRef = doc(db, 'User', user.uid);
           const userDoc = await getDoc(userRef);
           if (userDoc.exists()) {
             setUserInfo(userDoc.data());
           } else {
-            console.log("No such user document!");
+            console.log('No such user document!');
           }
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error('Error fetching user data:', error);
       }
     };
 
@@ -43,65 +43,80 @@ export default function Confirm_order() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const user = auth.currentUser;
-      if (user) {
-        const userID = user.uid;
-
-        // 1. Fetch items from the user's Panier collection
-        const panierRef = collection(db, 'Panier', userID, 'items');
-        const panierSnapshot = await getDocs(panierRef);
-        const items = panierSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        // 2. Add the order to the Orders collection with items array
-        const orderRef = collection(db, 'Orders');
-        await addDoc(orderRef, {
-          userID,
-          username: userInfo.username,
-          email: userInfo.email,
-          address: userInfo.address,
-          postalCode: userInfo.postalCode,
-          phone: userInfo.phone,
-          items, // Adding fetched items to order
-          orderDate: new Date(),
-          status: "Order Placed"
-        });
-
-        // 3. Clear the user's Panier by deleting each item document
-        for (const docItem of panierSnapshot.docs) {
-          await deleteDoc(docItem.ref);
+        const user = auth.currentUser;
+        if (!user) {
+            alert("You need to be logged in to place an order.");
+            return;
         }
 
-        // 4. Update the Panier document with nbrOfLines = 0
-        const panierDocRef = doc(db, 'Panier', userID);
-        await updateDoc(panierDocRef, {
-          nbrOfLines: 0
+        const userID = user.uid;
+
+        // 1. Fetch the current user's cart
+        const cartRef = doc(db, "Panier", userID);
+        const cartSnap = await getDoc(cartRef);
+
+        if (!cartSnap.exists()) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        const cartData = cartSnap.data();
+        const items = cartData.items || []; // Retrieve the `items` array
+        const nbroflines = cartData.nbroflines || 0; // Retrieve the `nbroflines`
+
+        if (items.length === 0 || nbroflines === 0) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        // 2. Add the order to the Orders collection
+        const orderRef = collection(db, "Orders");
+        await addDoc(orderRef, {
+            userID,
+            username: userInfo.username,
+            email: userInfo.email,
+            address: userInfo.address,
+            postalCode: userInfo.postalCode,
+            phone: userInfo.phone,
+            items, // Add the items array from the cart
+            orderDate: new Date(),
+            status: "Order Placed",
         });
 
-        // Display success alert and navigate to home
+        // 3. Clear the user's cart (set `items` to an empty array and `nbroflines` to 0)
+        await updateDoc(cartRef, {
+            items: [],
+            nbroflines: 0,
+        });
+
+        // 4. Display success alert and navigate back
         setShowAlert(true);
         setTimeout(() => {
-          setShowAlert(false);
-          navigate('/home');
+            setShowAlert(false);
+            navigate('/home');
         }, 3000);
 
-        console.log('Order placed successfully and cart emptied');
-      }
+        console.log("Order placed successfully and cart emptied.");
     } catch (error) {
-      console.error('Error placing order:', error);
+        console.error("Error placing order:", error);
+        alert("An error occurred while placing your order. Please try again.");
     }
-  };
+};
 
   return (
     <>
       {showAlert && (
         <div className="alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3" role="alert">
           <strong>Success!</strong> Your order has been placed successfully.
-          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setShowAlert(false)}></button>
+          <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+            onClick={() => setShowAlert(false)}
+          ></button>
         </div>
       )}
 
@@ -110,18 +125,24 @@ export default function Confirm_order() {
           <MDBCol md="3">
             <div className="text-center" style={{ marginTop: '50px', marginLeft: '10px' }}>
               <MDBIcon fas icon="shipping-fast text-white" size="3x" />
-              <MDBTypography tag="h3" className="text-white">Welcome</MDBTypography>
+              <MDBTypography tag="h3" className="text-white">
+                Welcome
+              </MDBTypography>
               <p className="white-text">You are 30 seconds away from completing your order!</p>
             </div>
             <div className="text-center">
-              <MDBBtn color="white" rounded className="back-button" onClick={handleGoBack}>Go back</MDBBtn>
+              <MDBBtn color="white" rounded className="back-button" onClick={handleGoBack}>
+                Go back
+              </MDBBtn>
             </div>
           </MDBCol>
           <MDBCol md="9" className="justify-content-center">
             <MDBCard className="card-custom pb-4">
               <MDBCardBody className="mt-0 mx-5">
                 <div className="text-center mb-3 pb-2 mt-3">
-                  <MDBTypography tag="h4" style={{ color: '#495057' }}>Delivery Details</MDBTypography>
+                  <MDBTypography tag="h4" style={{ color: '#495057' }}>
+                    Delivery Details
+                  </MDBTypography>
                 </div>
 
                 <form onSubmit={handleSubmit} className="mb-0">
@@ -173,7 +194,9 @@ export default function Confirm_order() {
                   </MDBRow>
 
                   <div className="float-end">
-                    <MDBBtn rounded style={{ backgroundColor: '#0062CC' }} type="submit">Place order</MDBBtn>
+                    <MDBBtn rounded style={{ backgroundColor: '#0062CC' }} type="submit">
+                      Place order
+                    </MDBBtn>
                   </div>
                 </form>
               </MDBCardBody>
