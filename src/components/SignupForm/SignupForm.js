@@ -12,6 +12,7 @@ import {
 import { auth, db } from '../../firebase.config'; // Adjust the path as needed
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import emailjs from 'emailjs-com'; // EmailJS library
 
 function SignupForm() {
   const [step, setStep] = useState(1);
@@ -47,6 +48,27 @@ function SignupForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const sendWelcomeEmail = (email, username) => {
+    const serviceId = 'service_51grp9c';
+    const templateId = 'template_6dk91xs';
+    const publicKey = 'BBjpBd8ygKJberPrr';
+
+    const templateParams = {
+      from_name: 'El Hanout Marketplace', // Your platform's name
+      to_name: username,
+      to_email: email,
+      message: `Welcome, ${username}! Thank you for signing up for our platform.`,
+    };
+
+    emailjs.send(serviceId, templateId, templateParams, publicKey)
+      .then((response) => {
+        console.log('Welcome email sent successfully!', response);
+      })
+      .catch((error) => {
+        console.error('Error sending welcome email:', error);
+      });
   };
 
   const handleSubmit = async (e) => {
@@ -95,6 +117,10 @@ function SignupForm() {
       });
 
       console.log('User and cart created successfully:', user);
+
+      // Send a welcome email to the user
+      sendWelcomeEmail(formData.email, formData.username);
+
       navigate('/login'); // Redirect after successful signup
     } catch (error) {
       console.error('Error signing up:', error.message);

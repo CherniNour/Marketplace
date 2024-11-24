@@ -3,11 +3,15 @@ import './cards.css';
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { doc, updateDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'; // Add missing imports
-
+import { useNavigate } from 'react-router-dom';
 const SportsandOutdoors = () => {
     const { addToCart } = useCart(); // Use the addToCart function from the Cart context
     const [products, setProducts] = useState([]); // State to store products fetched from Firestore
-
+    const navigate = useNavigate();
+    const handleLearnMore = (product) => {
+        // Passing product data using the state prop of navigate
+        navigate('/Product-Details', { state: { product } });
+    };
     // Fetch sports and outdoors products from Firestore on component mount
     useEffect(() => {
         const fetchProducts = async () => {
@@ -102,13 +106,14 @@ const SportsandOutdoors = () => {
                     ) : (
                         products.map((product, index) => (
                             <div key={index} className="product-card relative p-4 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
-                                <a href="#" title={product.Product_name}>
+                                <a href="" title={product.Product_name}>
                                     <div className="overflow-hidden rounded-md">
                                         <img
                                             className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                                             src={product.image}
                                             alt={product.Product_name}
                                             style={{ width: '500px', height: '450px' }}
+                                            onClick={() => handleLearnMore(product)}
                                         />
                                     </div>
                                 </a>
@@ -116,7 +121,7 @@ const SportsandOutdoors = () => {
                                     <h3 className="text-base font-bold text-gray-900 sm:text-lg mt-2">
                                         {product.Product_name}
                                     </h3>
-                                    <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}</p>
+                                    <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}DT</p>
                                     <div className="button-container flex flex-col items-end">
                                         <button 
                                             className="px-3 py-1 text-xs font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 transition"
@@ -124,7 +129,12 @@ const SportsandOutdoors = () => {
                                         >
                                             Add to Cart
                                         </button>
-                                        <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Learn More</a>
+                                        <span
+                                            className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
+                                            onClick={() => handleLearnMore(product)}
+                                        >
+                                            Learn More
+                                        </span>
                                     </div>
                                 </div>
                             </div>

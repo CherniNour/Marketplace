@@ -3,10 +3,16 @@ import './cards.css';
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { doc, updateDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 const AllProducts = () => {
-    const { addToCart } = useCart(); // Use the addToCart function from the Cart context
-    const [products, setProducts] = useState([]); // State to store products fetched from Firestore
+    const navigate = useNavigate();
+    const handleLearnMore = (product) => {
+        // Passing product data using the state prop of navigate
+        navigate('/Product-Details', { state: { product } });
+    };
+    const { addToCart } = useCart(); 
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -17,14 +23,14 @@ const AllProducts = () => {
                     id: doc.id,
                     ...doc.data(),
                 }));
-                setProducts(productsList); // Set the fetched products to state
+                setProducts(productsList); 
             } catch (error) {
                 console.error("Error fetching products from Firestore:", error);
             }
         };
 
-        fetchProducts(); // Call the function to fetch products
-    }, []); // Empty dependency array to run only once on component mount
+        fetchProducts(); 
+    }, []); 
 
     const handleAddToCart = async (product) => {
         const user = auth.currentUser;
@@ -33,39 +39,32 @@ const AllProducts = () => {
             return;
         }
 
-        // Call addToCart to update the cart visually
-        addToCart(product); // Pass the product data to addToCart
+        addToCart(product); 
 
-        // Define the user's cart in Firebase (using their user ID)
         const cartRef = doc(db, "Panier", user.uid);
 
         try {
-            // Get the product owner from the Product collection
             const productDoc = doc(db, "Product", product.id);
             const productSnap = await getDoc(productDoc);
             const productData = productSnap.data();
-            const productOwner = productData?.userID; // Fetch the userId of the product owner
+            const productOwner = productData?.userID;
 
-            // Get the current cart items and nbroflines count
             const cartSnap = await getDoc(cartRef);
             const cartData = cartSnap.data();
             const currentItems = cartData?.items || [];
             const currentNbrofLines = cartData?.nbroflines || 0;
 
-            // Check if the product already exists in the cart
             const existingProductIndex = currentItems.findIndex(item => item.Product_name === product.Product_name);
 
             let updatedItems;
 
             if (existingProductIndex !== -1) {
-                // If product already exists, increment the quantity
                 updatedItems = currentItems.map((item, index) => 
                     index === existingProductIndex
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             } else {
-                // If product does not exist, add it with quantity 1
                 updatedItems = [
                     ...currentItems,
                     { 
@@ -74,22 +73,20 @@ const AllProducts = () => {
                         image: product.image,
                         quantity: 1,
                         description: product.description,
-                        owner: productOwner // Store the original owner from the Product collection
+                        owner: productOwner 
                     }
                 ];
             }
-    
-            // Update the user's cart in Firestore and increment nbroflines
+
             await updateDoc(cartRef, { 
                 items: updatedItems, 
-                nbroflines: currentNbrofLines + 1 // Increment nbroflines by 1
+                nbroflines: currentNbrofLines + 1
             });
             console.log("Product added to cart successfully.");
         } catch (error) {
             console.error("Error adding product to cart:", error);
         }
     };
-    
 
     return (
         <section className="py-12 sm:py-16 lg:py-20" style={{ backgroundColor: '#f1f2f6' }}>
@@ -100,31 +97,35 @@ const AllProducts = () => {
                     ) : (
                         products.map((product, index) => (
                             <div key={index} className="product-card relative p-4 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
-                                <a href="#" title={product.Product_name}>
+                                <a href="" title={product.Product_name}>
                                     <div className="overflow-hidden rounded-md">
                                         <img
                                             className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                                             src={product.image}
                                             alt={product.Product_name}
                                             style={{ width: '500px', height: '450px' }}
+                                            onClick={() => handleLearnMore(product)}
                                         />
                                     </div>
                                 </a>
-                                {/* Adjusted this section to make sure the title appears clearly below the image */}
                                 <div className="flex flex-col items-start mt-4 space-y-2">
-                                    {/* Title with sufficient margin and font styling */}
                                     <h3 className="text-base font-bold text-gray-900 sm:text-lg mt-2">
-                                        {product.Product_name} {/* Displaying the correct product name */}
+                                        {product.Product_name}
                                     </h3>
-                                    <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}</p>
+                                    <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}DT</p>
                                     <div className="button-container flex flex-col items-end">
                                         <button 
                                             className="px-3 py-1 text-xs font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 transition"
-                                            onClick={() => handleAddToCart(product)} // Pass product data to handleAddToCart
+                                            onClick={() => handleAddToCart(product)}
                                         >
                                             Add to Cart
                                         </button>
-                                        <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Learn More</a>
+                                        <span
+                                            className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
+                                            onClick={() => handleLearnMore(product)}
+                                        >
+                                            Learn More
+                                        </span>
                                     </div>
                                 </div>
                             </div>

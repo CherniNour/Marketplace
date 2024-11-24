@@ -8,8 +8,9 @@ import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import './pageheader.css';
-
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 function PageHeader() {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -89,76 +90,86 @@ function PageHeader() {
     return (
         <div className="container-fluid px-4 py-5 my-5 text-center position-relative">
             <div className="d-flex justify-content-center align-items-center mb-4 position-relative">
-                <div className="position-absolute start-0">
-                    <img src='my-icon.ico' alt="El Hanout Logo" className="logo" style={{ width: '300px', height: '300px', cursor:'pointer' }} onClick={handleLogoClick}/>
-                </div>
-
+            <div className="position-absolute start-0 d-flex flex-column align-items-start">
+    <img
+        src="my-icon.ico"
+        alt="El Hanout Logo"
+        className="logo"
+        style={{ width: '300px', height: '300px', cursor: 'pointer' }}
+        onClick={handleLogoClick}
+    />
+    
+</div>
+    
                 <div className="flex-grow-1">
-                    <h2 className="display-2 fw-bold text-center">
+                    <h2 className="display-2 fw-bold text-center" >
                         El Hanout <span className="text-primary">Marketplace</span>
                     </h2>
                 </div>
             </div>
-
-            <div className="d-flex justify-content-end align-items-start p-3" style={{ position: 'fixed', top: '40px', right: '20px', zIndex: 1000 }}>
+    
+            <div
+                className="d-flex justify-content-end align-items-start p-3"
+                style={{ position: 'fixed', top: '30px', right: '20px', zIndex: 1000 }}
+            >
                 <div className="d-flex flex-column align-items-end">
-                <div className="d-flex align-items-center mb-3" style={{ fontSize: '1.1em' }}>
-                  <IconButton onClick={handleAvatarClick} style={{ transform: 'scale(1.2)' }}>
-                   <Avatar alt={userName} style={{ width: 40, height: 40 }}>
-                            {!isLoading ? initials : ''}
-                    </Avatar>
-                  </IconButton>
-                 <Typography variant="body1" style={{ marginLeft: '10px', fontSize: '1.1em' }}>
-                    {!isLoading ? userName : 'Loading...'}
-                </Typography>
-                <IconButton onClick={() => navigate('/My-orders')} aria-label="Orders" style={{ marginLeft: '16px', transform: 'scale(1.2)' }}>
-                <InventoryIcon />
-                 </IconButton>
-                    <IconButton onClick={handleCartClick} aria-label="Shopping Cart" style={{ marginLeft: '16px', transform: 'scale(1.2)' }}>
-                <ShoppingCartIcon />
-                <span className="cart-item-count" style={{ fontSize: '0.9em' }}>{cartCount}</span>
-                  </IconButton>
-                </div>
-
-                    <div className="search-bar-container" style={{ width: '100%', maxWidth: '320px' }}>
-                        <Barrederecherche />
-                    </div>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleAddProductClick}
-                        style={{
-                            marginTop: '15px',
-                            fontSize: '1.1em',
-                            fontWeight: 'bold',
-                            padding: '12px 24px',
-                            backgroundColor: '#4CAF50',
-                            color: '#FFFFFF'
-                        }}
-                    >
-                        Add Product
-                    </Button>
-
-                    {isAdmin && (
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleAdminPageClick}
-                            style={{
-                                marginTop: '10px',
-                                fontSize: '1.1em',
-                                fontWeight: 'bold',
-                                padding: '12px 24px',
-                                backgroundColor: '#FF5722',
-                                color: '#FFFFFF'
-                            }}
+                    <div className="d-flex align-items-center mb-3" style={{ fontSize: '1.1em' }}>
+                        <IconButton onClick={handleAvatarClick} style={{ transform: 'scale(1.2)' }}>
+                            <Avatar alt={userName} style={{ width: 40, height: 40 }}>
+                                {!isLoading ? initials : ''}
+                            </Avatar>
+                        </IconButton>
+                        <Typography variant="body1" style={{ marginLeft: '10px', fontSize: '1.1em' }}>
+                            {!isLoading ? userName : 'Loading...'}
+                        </Typography>
+                        <IconButton
+                            onClick={() => navigate('/My-orders')}
+                            aria-label="Orders"
+                            style={{ marginLeft: '16px', transform: 'scale(1.2)' }}
                         >
-                            Admin Page
-                        </Button>
-                    )}
+                            <InventoryIcon />
+                        </IconButton>
+                        <IconButton
+                            onClick={handleAddProductClick} // Handle the add product action
+                            aria-label="Add Product"
+                            style={{ marginLeft: '16px', transform: 'scale(1.2)', color: '#4CAF50' }}
+                        >
+                            <AddCircleIcon />
+                        </IconButton>
+                        {isAdmin && (
+                            <IconButton
+                                onClick={handleAdminPageClick} // Handle admin page action
+                                aria-label="Admin Page"
+                                style={{ marginLeft: '16px', transform: 'scale(1.2)', color: '#FF5722' }}
+                            >
+                                <AdminPanelSettingsIcon />
+                            </IconButton>
+                        )}
+                        <IconButton
+                            onClick={handleCartClick}
+                            aria-label="Shopping Cart"
+                            style={{ marginLeft: '16px', transform: 'scale(1.2)' }}
+                        >
+                            <ShoppingCartIcon />
+                            <span className="cart-item-count" style={{ fontSize: '0.9em' }}>
+                                {cartCount}
+                            </span>
+                        </IconButton>
+                    </div>
+                    <br></br>
+                    <div
+        className="search-bar-container"
+        style={{
+            width: '100%',
+            maxWidth: '300px',
+            marginTop: '-20px', // Adjusted to move it up
+        }}
+    >
+        <Barrederecherche />
+    </div>
                 </div>
             </div>
-
+    
             <Menu
                 anchorEl={anchorEl}
                 open={open}
@@ -173,10 +184,14 @@ function PageHeader() {
                 }}
             >
                 <MenuItem onClick={handleChange}>My profile</MenuItem>
-                <MenuItem onClick={handleLogout} style={{ color: 'red' }}>Log out</MenuItem>
+                <MenuItem onClick={handleLogout} style={{ color: 'red' }}>
+                    Log out
+                </MenuItem>
             </Menu>
         </div>
     );
+    
+    
 }
 
 export default PageHeader;

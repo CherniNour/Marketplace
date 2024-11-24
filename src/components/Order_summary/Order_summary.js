@@ -3,6 +3,7 @@ import { MDBBtn, MDBCard, MDBCardBody, MDBCol, MDBIcon, MDBInput, MDBRow, MDBTyp
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase.config';
 import { doc, getDoc, collection, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import emailjs from 'emailjs-com'; // EmailJS library
 import './Order_summary.css';
 
 export default function Confirm_order() {
@@ -39,6 +40,27 @@ export default function Confirm_order() {
 
   const handleGoBack = () => {
     navigate('/Your cart');
+  };
+
+  const sendOrderConfirmationEmail = (email, username) => {
+    const serviceId = 'service_51grp9c'; // Your EmailJS service ID
+    const templateId = 'template_6dk91xs'; // Your EmailJS template ID
+    const publicKey = 'BBjpBd8ygKJberPrr'; // Your EmailJS public key
+
+    const templateParams = {
+      from_name: 'El Hanout Marketplace',
+      to_name: username,
+      to_email: email,
+      message: `Dear ${username},\n\nYour payment was successfully processed. Your order is being prepared and will be delivered to you soon. Thank you for shopping with us at El Hanout Marketplace! If you have any questions, feel free to contact us.\n\nBest regards,\nThe El Hanout Team`,
+    };
+
+    emailjs.send(serviceId, templateId, templateParams, publicKey)
+      .then((response) => {
+        console.log('Order confirmation email sent successfully!', response);
+      })
+      .catch((error) => {
+        console.error('Error sending confirmation email:', error);
+      });
   };
 
   const handleSubmit = async (e) => {
@@ -91,19 +113,22 @@ export default function Confirm_order() {
             nbroflines: 0,
         });
 
-        // 4. Display success alert and navigate back
+        // 4. Send the order confirmation email
+        sendOrderConfirmationEmail(userInfo.email, userInfo.username);
+
+        // 5. Display success alert and navigate back
         setShowAlert(true);
         setTimeout(() => {
             setShowAlert(false);
             navigate('/home');
         }, 3000);
 
-        console.log("Order placed successfully and cart emptied.");
+        console.log("Order placed successfully, cart emptied, and email sent.");
     } catch (error) {
         console.error("Error placing order:", error);
         alert("An error occurred while placing your order. Please try again.");
     }
-};
+  };
 
   return (
     <>

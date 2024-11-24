@@ -3,13 +3,17 @@ import PageHeader from '../PageHeader/PageHeader';
 import Footer from '../Footer/Footer';
 import { db } from '../../firebase.config'; // Assurez-vous d'importer la config Firestore
 import { collection, query, where, getDocs } from 'firebase/firestore'; // Import des fonctions Firestore
-
+import { useNavigate } from 'react-router-dom';
 export default function Research() {
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]); // État pour stocker les produits trouvés
   const [loading, setLoading] = useState(true); // Indicateur de chargement
-  const [noResults, setNoResults] = useState(false); // Indicateur de résultats vides
-
+  const [noResults, setNoResults] = useState(false); // Indicateur de résultats vides   
+  const navigate = useNavigate();
+  const handleLearnMore = (product) => {
+    // Passing product data using the state prop of navigate
+        navigate('/Product-Details', { state: { product } });
+    };
   useEffect(() => {
     const query = sessionStorage.getItem('searchQuery');
     if (query) {
@@ -60,24 +64,30 @@ export default function Research() {
               {products.length > 0 ? (
                 products.map((product) => (
                   <div key={product.id} className="product-card relative p-4 shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
-                    <a href="#" title={product.Product_name}>
+                    <a href="" title={product.Product_name}>
                       <div className="overflow-hidden rounded-md">
                         <img
                           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           src={product.image}
                           alt={product.Product_name}
                           style={{ width: '500px', height: '450px' }}
+                          onClick={() => handleLearnMore(product)}
                         />
                       </div>
                     </a>
                     <div className="flex flex-col items-start mt-4 space-y-2">
                       <h3 className="text-base font-bold text-gray-900 sm:text-lg mt-2">{product.Product_name}</h3>
-                      <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}</p>
+                      <p className="product-price text-sm font-bold text-gray-900 sm:text-base">{product.price}DT</p>
                       <div className="button-container flex flex-col items-end">
                         <button className="px-3 py-1 text-xs font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 transition">
                           Add to Cart
                         </button>
-                        <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Learn More</a>
+                        <span
+                                            className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
+                                            onClick={() => handleLearnMore(product)}
+                                        >
+                                            Learn More
+                                        </span>
                       </div>
                     </div>
                   </div>

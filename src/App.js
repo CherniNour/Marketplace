@@ -13,6 +13,8 @@ import PacmanLoader from './components/PacmanLoader/PacmanLoader';
 import Research from './components/Research/Research';
 import OrdersList from './components/Order_tracking/Order_list';
 import Confirm_order from './components/Order_summary/Order_summary';
+import Product from './components/HomePage/ProductDetails';
+
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,7 @@ function App() {
               <Route path="/PacmanLoader" element={<PacmanLoader />} />
               <Route path="/ProductResearch" element={<Research />} />
               <Route path="/order-summary" element={<Confirm_order />} />
+              <Route path="/Product-Details" element={<Product />} />
             </Routes>
             
           )}

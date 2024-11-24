@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom'; // Pour la redirection
+import { useNavigate } from 'react-router-dom'; // For navigation
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system';
 import { Popper, useAutocomplete } from '@mui/material';
@@ -12,7 +12,7 @@ import { useForkRef } from '@mui/material/utils';
 
 const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, ref) {
   const { disableClearable = false, disabled = false, readOnly = false, ...other } = props;
-  const navigate = useNavigate(); // Utilisation du hook pour la navigation
+  const navigate = useNavigate(); // Navigation for search
 
   const {
     getRootProps,
@@ -28,7 +28,7 @@ const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, r
     setAnchorEl,
     groupedOptions,
     inputValue,
-    setInputValue
+    setInputValue,
   } = useAutocomplete({
     ...props,
     componentName: 'BaseAutocomplete',
@@ -40,13 +40,13 @@ const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, r
 
   const shouldShowSuggestions = inputValue.length > 0;
 
-  // Fonction pour gérer la recherche
+  // Function to handle search
   const handleSearch = () => {
-    sessionStorage.setItem('searchQuery', inputValue); // Enregistrer la recherche dans sessionStorage
-    navigate('/ProductResearch'); // Rediriger vers la page de recherche
+    sessionStorage.setItem('searchQuery', inputValue); // Save query in sessionStorage
+    navigate('/ProductResearch'); // Navigate to search results page
   };
 
-  // Gérer la touche "Entrée"
+  // Handle Enter key
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       handleSearch();
@@ -62,14 +62,14 @@ const CustomAutocomplete = React.forwardRef(function CustomAutocomplete(props, r
           readOnly={readOnly}
           {...getInputProps()}
           placeholder="Search..."
-          onKeyDown={handleKeyDown} // Détecter la touche "Entrée"
+          onKeyDown={handleKeyDown} // Detect Enter key
         />
         {hasClearIcon && (
           <StyledClearIndicator {...getClearProps()}>
             <ClearIcon />
           </StyledClearIndicator>
         )}
-        <StyledSearchIcon onClick={handleSearch}> {/* Clic sur la loupe */}
+        <StyledSearchIcon onClick={handleSearch}> {/* Click on magnifying glass */}
           <SearchIcon />
         </StyledSearchIcon>
       </StyledAutocompleteRoot>
@@ -96,20 +96,41 @@ CustomAutocomplete.propTypes = {
 
 export default function Barrederecherche() {
   const [products, setProducts] = React.useState([]);
+  const [filteredOptions, setFilteredOptions] = React.useState([]);
+  const [inputValue, setInputValue] = React.useState('');
 
   React.useEffect(() => {
     const fetchProducts = async () => {
       const q = query(collection(db, 'Product'));
       const querySnapshot = await getDocs(q);
       const productsData = querySnapshot.docs.map(doc => ({
-        label: doc.data().Product_name,
+        label: doc.data().Product_name, // Keep original case for display
       }));
       setProducts(productsData);
     };
     fetchProducts();
   }, []);
 
-  return <CustomAutocomplete options={products} />;
+  // Update filtered options as inputValue changes
+  React.useEffect(() => {
+    if (inputValue.trim()) {
+      const lowercasedInput = inputValue.toLowerCase(); // Convert input to lowercase
+      const matchingOptions = products.filter(product =>
+        product.label.toLowerCase().includes(lowercasedInput) // Convert product names to lowercase for comparison
+      );
+      setFilteredOptions(matchingOptions); // Use original names for display
+    } else {
+      setFilteredOptions([]); // Clear suggestions if input is empty
+    }
+  }, [inputValue, products]);
+
+  return (
+    <CustomAutocomplete
+      options={filteredOptions} // Use filtered options
+      inputValue={inputValue} // Controlled input value
+      onInputChange={(event, newInputValue) => setInputValue(newInputValue)} // Handle input changes
+    />
+  );
 }
 
 const StyledAutocompleteRoot = styled('div')`
