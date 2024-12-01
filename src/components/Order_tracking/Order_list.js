@@ -1,15 +1,16 @@
+ 
 import React, { useState, useEffect } from "react";
 import { MDBListGroup, MDBListGroupItem, MDBBadge, MDBContainer } from "mdb-react-ui-kit";
 import { auth, db } from "../../firebase.config";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import Order from "./Order_tracking"; // Import your detailed Order Tracking component
+import Order from "./Order_tracking"; 
 import PageHeader from "../PageHeader/PageHeader";
 import Footer from "../Footer/Footer";
-
+ 
 export default function OrdersList() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
+ 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -27,25 +28,21 @@ export default function OrdersList() {
         console.error("Error fetching orders:", error);
       }
     };
-
+ 
     fetchOrders();
   }, []);
-
+ 
   const handleOrderClick = (order) => {
     setSelectedOrder(order);
   };
-
-  const handleBackToOrders = () => {
-    setSelectedOrder(null);
-  };
-
+ 
   return (
     <>
       <PageHeader />
       <MDBContainer className="py-5" style={{ maxWidth: "900px" }}>
         {selectedOrder ? (
           <div>
-            
+ 
             <Order order={selectedOrder} />
           </div>
         ) : (

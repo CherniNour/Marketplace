@@ -21,8 +21,8 @@ function ClientsPage() {
 
         setClients(clientsList);
       } catch (error) {
-        console.error("Erreur lors de la récupération des clients :", error);
-        setError("Erreur de chargement des données. Veuillez réessayer plus tard.");
+        console.error("Error while fetching clients:", error);
+        setError("Data loading error. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -33,29 +33,29 @@ function ClientsPage() {
 
   const handleDelete = async (clientId) => {
     try {
-      // Supprimer l'utilisateur
+      // Delete the user
       const clientDocRef = doc(db, 'User', clientId);
       await deleteDoc(clientDocRef);
       setClients(clients.filter(client => client.id !== clientId));
-      alert("Utilisateur supprimé avec succès.");
+      alert("User deleted successfully.");
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'utilisateur :", error);
-      alert("Erreur lors de la suppression de l'utilisateur.");
+      console.error("Error while deleting the user:", error);
+      alert("Error while deleting the user.");
     }
   };
 
   const handleUpdateRole = async (clientId, newRole) => {
     try {
-      // Mettre à jour le rôle de l'utilisateur
+      // Update the user's role
       const clientDocRef = doc(db, 'User', clientId);
       await updateDoc(clientDocRef, { role: newRole });
       setClients(clients.map(client => 
         client.id === clientId ? { ...client, role: newRole } : client
       ));
-      alert("Rôle mis à jour avec succès.");
+      alert("Role updated successfully.");
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du rôle :", error);
-      alert("Erreur lors de la mise à jour du rôle.");
+      console.error("Error while updating the role:", error);
+      alert("Error while updating the role.");
     }
   };
 
@@ -73,7 +73,7 @@ function ClientsPage() {
 
   return (
     <div>
-      <h2>Liste des Clients</h2>
+      <h2>Clients List</h2>
       <table className="table">
         <thead>
           <tr>
@@ -97,28 +97,28 @@ function ClientsPage() {
                 <td>{client.postalCode}</td>
                 <td>{client.role}</td>
                 <td>
-                  {/* Bouton pour changer le rôle en 'admin' */}
+                  {/* Button to promote to 'admin' */}
                   <button
                     onClick={() => handleUpdateRole(client.id, 'admin')}
                     disabled={client.role === 'admin'}
                     className="btn btn-primary btn-sm"
                   >
-                    Promouvoir en Admin
+                    Promote to Admin
                   </button>
-                  {/* Bouton pour supprimer un utilisateur */}
+                  {/* Button to delete a user */}
                   <button
                     onClick={() => handleDelete(client.id)}
                     className="btn btn-danger btn-sm"
                     style={{ marginLeft: '10px' }}
                   >
-                    Supprimer
+                    Delete
                   </button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7">Aucun client trouvé.</td>
+              <td colSpan="7">No clients found.</td>
             </tr>
           )}
         </tbody>

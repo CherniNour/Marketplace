@@ -5,6 +5,7 @@ import ClientsPage from './ClientsPage';
 import DashboardPage from './DashboardPage';
 import ProductsPage from './ProductsPage';
 import OrdersPage from './OrdersPage';
+import CategoriesPage from './CategoriesPage';  // Import the CategoriesPage
 
 // Importer les composants de React Bootstrap
 import { Container, Row, Col, Nav, Navbar } from 'react-bootstrap';
@@ -28,25 +29,31 @@ function Admin() {
                   onClick={() => setSelectedTab('clients')}
                   style={{ color: selectedTab === 'clients' ? '#17a2b8' : 'white' }}
                 >
-                  Liste des Clients
+                  Clients
                 </Nav.Link>
                 <Nav.Link
-                  onClick={() => setSelectedTab('dashboard')}
-                  style={{ color: selectedTab === 'dashboard' ? '#17a2b8' : 'white' }}
+                  onClick={() => setSelectedTab('categories')}
+                  style={{ color: selectedTab === 'categories' ? '#17a2b8' : 'white' }}
                 >
-                  Tableau de Bord Power BI
+                  Categories
                 </Nav.Link>
                 <Nav.Link
                   onClick={() => setSelectedTab('produits')}
                   style={{ color: selectedTab === 'produits' ? '#17a2b8' : 'white' }}
                 >
-                  Produits
+                  Products
                 </Nav.Link>
                 <Nav.Link
                   onClick={() => setSelectedTab('commandes')}
                   style={{ color: selectedTab === 'commandes' ? '#17a2b8' : 'white' }}
                 >
-                  Commandes
+                  Orders
+                </Nav.Link>
+                <Nav.Link
+                  onClick={() => setSelectedTab('dashboard')}
+                  style={{ color: selectedTab === 'dashboard' ? '#17a2b8' : 'white' }}
+                >
+                  DashboardPage
                 </Nav.Link>
               </Nav>
             </Navbar>
@@ -57,9 +64,10 @@ function Admin() {
             <div style={{ padding: '20px', border: '2px dashed #ddd' }}>
               {/* Contenu dynamique selon l'onglet sélectionné */}
               {selectedTab === 'clients' && <ClientsPage />}
-              {selectedTab === 'dashboard' && <DashboardPage />}
+              {selectedTab === 'categories' && <CategoriesPage />}
               {selectedTab === 'produits' && <ProductsPage />}
               {selectedTab === 'commandes' && <OrdersPage />}
+              {selectedTab === 'dashboard' && <DashboardPage />}
             </div>
           </Col>
         </Row>

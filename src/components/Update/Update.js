@@ -1,6 +1,8 @@
+//update
+
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../../firebase.config';
-import { doc, getDoc, collection, query, where, getDocs, deleteDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, deleteDoc, setDoc,updateDoc } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer"; 
@@ -17,7 +19,8 @@ function Update() {
     password: ''
   });
   const [userProducts, setUserProducts] = useState([]);
-
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [editedProduct, setEditedProduct] = useState({});
   useEffect(() => {
     const fetchUserData = async () => {
       if (auth.currentUser) {
@@ -46,13 +49,6 @@ function Update() {
     fetchUserProducts();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserInfo((prevInfo) => ({
-      ...prevInfo,
-      [name]: value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,6 +86,30 @@ function Update() {
     } catch (error) {
       console.error("Error deleting product:", error);
     }
+  };
+  const handleEditProduct = (product) => {
+    setEditingProductId(product.id);
+    setEditedProduct({ ...product });
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      const productRef = doc(db, "Product", editingProductId);
+      await updateDoc(productRef, editedProduct);
+      setUserProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === editingProductId ? { ...product, ...editedProduct } : product
+        )
+      );
+      setEditingProductId(null);
+    } catch (error) {
+      console.error("Error saving product:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProduct((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -137,7 +157,7 @@ function Update() {
                       <MDBCardText className="font-italic mb-1"><strong>Address:</strong> {userInfo.address}</MDBCardText>
                       <MDBCardText className="font-italic mb-1"><strong>Postal Code:</strong> {userInfo.postalCode}</MDBCardText>
                       <MDBCardText className="font-italic mb-1"><strong>Email:</strong> {userInfo.email}</MDBCardText>
-                      <MDBCardText className="font-italic mb-1"><strong>Password:</strong> ********</MDBCardText>
+                      <MDBCardText className="font-italic mb-1"><strong>Password:</strong> *********</MDBCardText>
                     </>
                   )}
                 </div>
@@ -150,23 +170,86 @@ function Update() {
                 {userProducts.map((product) => (
                   <MDBCol md="4" key={product.id} className="mb-4">
                     <MDBCard>
-                      <MDBCardImage
-                        src={product.image || "/placeholder-image.jpg"}
-                        alt="Product"
-                        style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                      />
-                      <MDBCardBody>
-                        <MDBTypography tag="h5">{product.Product_name}</MDBTypography>
-                        <MDBCardText>{product.description}</MDBCardText>
-                        <MDBCardText><strong>Price:</strong> {product.price}DT</MDBCardText>
-                        <MDBIcon 
-                          icon="trash" 
-                          size="lg" 
-                          className="text-muted" 
-                          style={{ position: 'absolute', top: '10px', right: '10px', cursor: 'pointer' }} 
-                          onClick={() => handleDeleteProduct(product.id)} 
-                        />
-                      </MDBCardBody>
+                    
+                    <div style={{ position: "relative" }}>
+                    <MDBCardImage
+                      src={product.image || "/placeholder-image.jpg"}
+                      alt="Product"
+                      style={{ width: "100%", height: "200px", objectFit: "cover" }}
+                    />
+                    <MDBIcon
+                      fas
+                      icon="pen"
+                      size="lg"
+                      className="text-gray"
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        left: "10px",
+                        cursor: "pointer",
+                        zIndex: "2",
+                      }}
+                      onClick={() => handleEditProduct(product)}
+                    />
+                    <MDBIcon
+                      fas
+                      icon="trash"
+                      size="lg"
+                      className="text-gray"
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        cursor: "pointer",
+                        zIndex: "2",
+                      }}
+                      onClick={() => handleDeleteProduct(product.id)}
+                    />
+                  </div>
+
+                    
+                    <MDBCardBody>
+                      {editingProductId === product.id ? (
+                        <>
+                         
+                          <MDBInput
+                            className="mb-2"
+                            label="Title"
+                            name="Product_name"
+                            value={editedProduct.Product_name}
+                            onChange={handleChange}
+                            
+                          />
+                          <MDBInput
+                            className="mb-2"
+                            label="Description"
+                            name="description"
+                            value={editedProduct.description}
+                            onChange={handleChange}
+                          />
+                          <MDBInput
+                            className="mb-2"
+                            label="Price"
+                            name="price"
+                            value={editedProduct.price}
+                            onChange={handleChange}
+                          />
+                          <MDBBtn color="success" onClick={handleSaveProduct}>
+                            Save
+                          </MDBBtn>
+                          <MDBBtn color="danger" onClick={() => setEditingProductId(null)}>
+                            Cancel
+                          </MDBBtn>
+                        </>
+                      ) : (
+                        <>
+                          <MDBTypography tag="h5">{product.Product_name}</MDBTypography>
+                          <MDBCardText>{product.description}</MDBCardText>
+                          <MDBCardText><strong>Price:</strong> {product.price}DT</MDBCardText>
+                         
+                        </>
+                      )}
+                    </MDBCardBody>
                     </MDBCard>
                   </MDBCol>
                 ))}

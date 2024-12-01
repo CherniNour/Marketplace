@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase.config'; // Import auth from Firebase config
+import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { auth, db } from '../../firebase.config'; // Import auth and db from Firebase config
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer";
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Add_product() {
   const [loading, setLoading] = useState(false);
@@ -15,10 +15,43 @@ function Add_product() {
     description: '',
     category: '',
   });
+  const [categories, setCategories] = useState([]); // State for categories
   const [showAlert, setShowAlert] = useState(false); // State for the alert visibility
+  const [categoriesLoading, setCategoriesLoading] = useState(true); // State for loading categories
 
   const { Product_name, product_image, price, description, category } = formData;
   const navigate = useNavigate();
+
+  // Default categories
+  const defaultCategories = [
+    { id: 'default1', name: 'Electronics' },
+    { id: 'default2', name: 'Clothing' },
+    { id: 'default3', name: 'Sports & Outdoors' },
+  ];
+
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesCollection = collection(db, 'Categories');
+        const categorySnapshot = await getDocs(categoriesCollection);
+
+        const categoryList = categorySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // Combine default categories with fetched categories
+        setCategories([...defaultCategories, ...categoryList]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +59,10 @@ function Add_product() {
 
     try {
       // Get the current user's ID
-      const userID = auth.currentUser?.uid; // Make sure the user is authenticated
+      const userID = auth.currentUser ?.uid;
 
       if (!userID) {
-        console.error('User is not authenticated');
+        console.error('User  is not authenticated');
         setLoading(false);
         return;
       }
@@ -69,7 +102,7 @@ function Add_product() {
         reader.readAsDataURL(product_image); // Convert image to base64
       }
     } catch (error) {
-      console.error('Error saving product:', error); // Log the error to console
+      console.error('Error saving product:', error);
       setLoading(false);
     }
   };
@@ -90,7 +123,7 @@ function Add_product() {
 
   const validatePrice = (value) => {
     const numberValue = parseFloat(value);
-    return !isNaN(numberValue) && numberValue > 0; // Vérifie que c'est un nombre et qu'il est positif
+    return !isNaN(numberValue) && numberValue > 0; // Check for a valid positive number
   };
 
   return (
@@ -151,9 +184,9 @@ function Add_product() {
                 onChange={(e) => {
                   onMutate(e);
                   if (!validatePrice(e.target.value)) {
-                    e.target.setCustomValidity('Please enter a positive number.'); // Message d'erreur personnalisé
+                    e.target.setCustomValidity('Please enter a positive number.');
                   } else {
-                    e.target.setCustomValidity(''); // Réinitialise le message d'erreur
+                    e.target.setCustomValidity('');
                   }
                 }}
                 min='0.01'
@@ -176,18 +209,24 @@ function Add_product() {
 
             <div className='mb-3'>
               <label className='form-label'>Category</label>
-              <select
-                className='form-select'
-                id='category'
-                value={category}
-                onChange={onMutate}
-                required
-              >
-                <option value=''>Select Category</option>
-                <option value='electronics'>Electronics</option>
-                <option value='clothing'>Clothing</option>
-                <option value='Sports_Outdoors'>Sports_Outdoors</option>
-              </select>
+              {categoriesLoading ? (
+                <p>Loading categories...</p>
+              ) : (
+                <select
+                  className='form-select'
+                  id='category'
+                  value={category}
+                  onChange={onMutate}
+                  required
+                >
+                  <option value=''>Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <button type='submit' className='btn btn-primary w-100'>

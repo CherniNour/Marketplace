@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase.config';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import PacmanLoader from 'react-spinners/PacmanLoader';
 
 function ProductsPage() {
@@ -14,15 +14,28 @@ function ProductsPage() {
         const productsCollection = collection(db, 'Product');
         const productSnapshot = await getDocs(productsCollection);
 
-        const productList = productSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const productList = [];
+
+        for (const productDoc of productSnapshot.docs) {
+          const productData = productDoc.data();
+          const userID = productData.userID; // Assuming `userID` field exists in the Product document
+
+          // Fetch user details using the userID
+          const userDocRef = doc(db, 'Users', userID); // Assuming the Users collection contains user details
+          const userDoc = await getDoc(userDocRef);
+          const userName = userDoc.exists() ? userDoc.data().name : 'Unknown User'; // Default name if user doesn't exist
+
+          productList.push({
+            id: productDoc.id,
+            ...productData,
+            userName, // Add the userName field to the product data
+          });
+        }
 
         setProducts(productList);
       } catch (error) {
-        console.error("Erreur lors de la récupération des produits :", error);
-        setError("Erreur de chargement des données. Veuillez réessayer plus tard.");
+        console.error("Error fetching products:", error);
+        setError("Data loading error. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -36,10 +49,10 @@ function ProductsPage() {
       const productDocRef = doc(db, 'Product', productId);
       await deleteDoc(productDocRef);
       setProducts(products.filter(product => product.id !== productId));
-      alert("Produit supprimé avec succès.");
+      alert("Product successfully deleted.");
     } catch (error) {
-      console.error("Erreur lors de la suppression du produit :", error);
-      alert("Erreur lors de la suppression du produit.");
+      console.error("Error deleting product:", error);
+      alert("Error deleting product.");
     }
   };
 
@@ -57,15 +70,16 @@ function ProductsPage() {
 
   return (
     <div>
-      <h2>Liste des Produits</h2>
+      <h2>Product List</h2>
       <table className="table">
         <thead>
           <tr>
-            <th>Nom du Produit</th>
-            <th>Catégorie</th>
+            <th>Product Name</th>
+            <th>Category</th>
             <th>Description</th>
-            <th>Prix</th>
+            <th>Price</th>
             <th>Image</th>
+            <th>User</th> {/* Add a column for user name */}
             <th>Actions</th>
           </tr>
         </thead>
@@ -81,22 +95,23 @@ function ProductsPage() {
                   {product.image ? (
                     <img src={product.image} alt={product.Product_name} style={{ width: '100px', height: 'auto' }} />
                   ) : (
-                    'Aucune image'
+                    'No image'
                   )}
                 </td>
+                <td>{product.userName}</td> {/* Display the user name */}
                 <td>
                   <button
                     onClick={() => handleDelete(product.id)}
                     className="btn btn-danger btn-sm"
                   >
-                    Supprimer
+                    Delete
                   </button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6">Aucun produit trouvé.</td>
+              <td colSpan="7">No products found.</td>
             </tr>
           )}
         </tbody>

@@ -1,3 +1,4 @@
+ 
 import React, { useEffect, useState } from 'react';
 import { 
     MDBCard, MDBCardBody, MDBCardImage, MDBCol, MDBContainer, MDBRow, MDBTypography, 
@@ -7,15 +8,22 @@ import { useCart } from '../CartContext/CartContext';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer"; 
 import { auth, db } from '../../firebase.config';
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove, collection,addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-
+import CryptoJS from 'crypto-js';
+ 
 function Cart() {
     const { cartItems, setCartItems, setCartCount } = useCart();
     const [subtotal, setSubtotal] = useState(0);
     const [showCreditCardForm, setShowCreditCardForm] = useState(false);
+    const [cardInfo, setCardInfo] = useState({
+        name: '',
+        number: '',
+        expiration: '',
+        cvv: ''
+    });
     const navigate = useNavigate();
-
+ 
     useEffect(() => {
         const fetchCartItems = async () => {
             if (auth.currentUser) {
@@ -32,20 +40,20 @@ function Cart() {
         };
         fetchCartItems();
     }, [setCartItems, setCartCount]);
-
+ 
     useEffect(() => {
         const total = cartItems.reduce((acc, product) => acc + (parseFloat(product.price) * product.quantity), 0);
         setSubtotal(total);
     }, [cartItems]);
-
+ 
     const handleDelete = async (product) => {
         try {
             const updatedItems = cartItems.filter((item) => item.Product_name !== product.Product_name);
             const newCartCount = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
-
+ 
             setCartItems(updatedItems);
             setCartCount(newCartCount);
-
+ 
             const userUid = auth.currentUser.uid;
             const cartRef = doc(db, "Panier", userUid);
             await updateDoc(cartRef, {
@@ -56,16 +64,16 @@ function Cart() {
             console.error("Error removing item from Firestore:", error);
         }
     };
-
+ 
     const updateProductQuantity = async (product, delta) => {
         const updatedItems = cartItems.map((item) =>
             item.Product_name === product.Product_name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
         );
-
+ 
         const newCartCount = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
         setCartItems(updatedItems);
         setCartCount(newCartCount);
-
+ 
         const userUid = auth.currentUser.uid;
         const cartRef = doc(db, "Panier", userUid);
         await updateDoc(cartRef, {
@@ -73,11 +81,48 @@ function Cart() {
             nbroflines: newCartCount
         });
     };
-
+ 
+    const handleCardInput = (e) => {
+        const { name, value } = e.target;
+        setCardInfo({ ...cardInfo, [name]: value });
+    };
+ 
+    const encryptData = (data) => {
+        const secretKey = CryptoJS.enc.Utf8.parse('my-secret-key-12345'); // Replace with a secure key
+        const iv = CryptoJS.enc.Utf8.parse('my-init-vector-123'); // Replace with a secure IV
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), secretKey, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return encrypted.toString();
+    };
+ 
+    // Example usage in handlePayment
+    const handlePayment = async (e) => {
+        e.preventDefault();
+        if (auth.currentUser) {
+            const encrypted = encryptData(cardInfo);
+            const userUid = auth.currentUser.uid;
+ 
+            try {
+                const CreditCardref =collection(db, 'Credit card');
+                await addDoc(CreditCardref, {
+                    encryptedCardInfo: encrypted,
+                    userId: userUid,
+                });
+ 
+                navigate('/order-summary');
+            } catch (error) {
+                console.error("Error saving credit card info:", error);
+            }
+        }
+    };
+ 
     return (
         <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <PageHeader />
-
+ 
             <section className="h-100 h-custom flex-grow-1" style={{ backgroundColor: "#eee" }}>
                 <MDBContainer className="py-5 h-100">
                     <MDBRow className="justify-content-center align-items-center h-100">
@@ -93,7 +138,7 @@ function Cart() {
                                             <div className="d-flex justify-content-between align-items-center mb-4">
                                                 <p className="mb-0">You have {cartItems.length} items in your cart</p>
                                             </div>
-
+ 
                                             {cartItems.map((product, index) => (
                                                 <MDBCard key={index} className="mb-3">
                                                     <MDBCardBody>
@@ -128,7 +173,7 @@ function Cart() {
                                                                         +
                                                                     </span>
                                                                 </div>
-
+ 
                                                                 <div style={{ display: "flex", alignItems: "center", minWidth: "80px", justifyContent: "flex-start" }}>
                                                                     <MDBTypography tag="h5" className="mb-0" style={{ whiteSpace: "nowrap" }}>
                                                                         {(parseFloat(product.price) * product.quantity).toFixed(2)}
@@ -137,7 +182,7 @@ function Cart() {
                                                                         DT
                                                                     </span>
                                                                 </div>
-
+ 
                                                                 <a onClick={() => handleDelete(product)} style={{ color: "#cecece", cursor: "pointer" }}>
                                                                     <MDBIcon fas icon="trash-alt"/>
                                                                 </a>
@@ -147,7 +192,7 @@ function Cart() {
                                                 </MDBCard>
                                             ))}
                                         </MDBCol>
-
+ 
                                         <MDBCol lg="5">
                                             <MDBCard className="rounded-3 mt-3" style={{ backgroundColor: "#f8f9fa" }}>
                                                 <MDBCardBody className="p-4">
@@ -163,9 +208,9 @@ function Cart() {
                                                         <p className="mb-2 font-weight-bold">Total (Incl. taxes)</p>
                                                         <p className="mb-2 font-weight-bold">{(subtotal + 7).toFixed(2)} DT</p>
                                                     </div>
-
+ 
                                                     <hr />
-
+ 
                                                     <div className="d-flex flex-column">
                                                         <MDBBtn color="info" block size="lg" onClick={() => navigate('/order-summary')}>
                                                             Pay on Delivery
@@ -174,27 +219,60 @@ function Cart() {
                                                             Pay Online
                                                         </MDBBtn>
                                                     </div>
-
+ 
                                                     {showCreditCardForm && (
-                                                        <div className="mt-4">
-                                                            <form>
-                                                                <MDBInput className="mb-4" label="Cardholder's Name" type="text" size="lg" placeholder="Cardholder's Name" />
-                                                                <MDBInput className="mb-4" label="Card Number" type="text" size="lg" minLength="19" maxLength="19" placeholder="1234 5678 9012 3457" />
-                                                                <MDBRow className="mb-4">
-                                                                    <MDBCol md="6">
-                                                                        <MDBInput label="Expiration" type="text" size="lg" minLength="7" maxLength="7" placeholder="MM/YYYY" />
-                                                                    </MDBCol>
-                                                                    <MDBCol md="6">
-                                                                        <MDBInput label="Cvv" type="text" size="lg" minLength="3" maxLength="3" placeholder="•••" />
-                                                                    </MDBCol>
-                                                                </MDBRow>
-
-                                                                <MDBBtn color="success" block size="lg" onClick={() => navigate('/order-summary')}>
-                                                                    Pay
-                                                                </MDBBtn>
-                                                            </form>
-                                                        </div>
-                                                    )}
+                                                        <form onSubmit={handlePayment} className="mt-3">
+                                                            <MDBInput
+                                                            wrapperClass="mb-4"
+                                                            label="Cardholder's Name"
+                                                            name="name"
+                                                            value={cardInfo.name}
+                                                            onChange={handleCardInput}
+                                                            required
+                                                            pattern="^[a-zA-Z\s]+$"
+                                                            title="Name should contain only letters and spaces"
+                                                            />
+                                                            <MDBInput
+                                                            wrapperClass="mb-4"
+                                                            label="Card Number"
+                                                            name="number"
+                                                            value={cardInfo.number}
+                                                            onChange={handleCardInput}
+                                                            required
+                                                            pattern="^\d{16}$"
+                                                            title="Card number must contain exactly 16 digits"
+                                                            />
+                                                            <MDBRow className="mb-4">
+                                                            <MDBCol md="6">
+                                                                <MDBInput
+                                                                wrapperClass="mb-4"
+                                                                label="Expiration Date (MM/YY)"
+                                                                name="expiration"
+                                                                value={cardInfo.expiration}
+                                                                onChange={handleCardInput}
+                                                                required
+                                                                pattern="^(0[1-9]|1[0-2])\/\d{2}$"
+                                                                title="Expiration date must be in MM/YY format and valid"
+                                                                />
+                                                            </MDBCol>
+                                                            <MDBCol md="6">
+                                                                <MDBInput
+                                                                wrapperClass="mb-4"
+                                                                label="CVV"
+                                                                name="cvv"
+                                                                value={cardInfo.cvv}
+                                                                onChange={handleCardInput}
+                                                                required
+                                                                pattern="^\d{3,4}$"
+                                                                title="CVV must be 3 or 4 digits"
+                                                                />
+                                                            </MDBCol>
+                                                            </MDBRow>
+                                                            <MDBBtn color="success" type="submit" block>
+                                                            Submit Payment
+                                                            </MDBBtn>
+                                                        </form>
+                                                        )}
                                                 </MDBCardBody>
                                             </MDBCard>
                                         </MDBCol>
@@ -205,10 +283,10 @@ function Cart() {
                     </MDBRow>
                 </MDBContainer>
             </section>
-
+ 
             <Footer />
         </div>
     );
 }
-
+ 
 export default Cart;

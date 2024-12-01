@@ -1,0 +1,29 @@
+[
+  {
+    "id": "Ty5fRjpuf5Q940CmH7zHeFDOmAA2",
+    "role": "admin",
+    "phone": "55356942",
+    "address": "Tunis",
+    "email": "wassimjha7@gmail.com",
+    "postalCode": "1234",
+    "username": "Admin"
+  },
+  {
+    "id": "bzMvdM5CL2U9640GSHslMlZV6EG3",
+    "username": "Wassim jha",
+    "phone": "55356942",
+    "address": "route de ben zahra soliman",
+    "postalCode": "8020",
+    "email": "wassimjha5@gmail.com",
+    "role": "client"
+  },
+  {
+    "id": "cYKLdiPKu2cRaFKOlTUn9XgTw4m2",
+    "username": "Nour cherni",
+    "phone": "29 536 207",
+    "address": "mourouj",
+    "postalCode": "1234",
+    "email": "nourcherni357@gmail.com",
+    "role": "client"
+  }
+]

@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import './cards.css';
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { doc, updateDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'; // Add missing imports
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Sidebar/Sidebar';
+import Barrederecherche from '../Barrederecherche/Barrederecherche';
 const Clothing = () => {
     const { addToCart } = useCart(); // Use the addToCart function from the Cart context
     const [products, setProducts] = useState([]); // State to store products fetched from Firestore
@@ -29,41 +32,41 @@ const Clothing = () => {
                 console.error("Error fetching products from Firestore:", error);
             }
         };
-
+ 
         fetchProducts(); // Call the function to fetch products
     }, []); // Empty dependency array to run only once on component mount
-
+ 
     const handleAddToCart = async (product) => {
         const user = auth.currentUser;
         if (!user) {
             alert("Please log in to add items to your cart.");
             return;
         }
-
+ 
         // Call addToCart to update the cart visually
         addToCart(product); // Pass the product data to addToCart
-
+ 
         // Define the user's cart in Firebase (using their user ID)
         const cartRef = doc(db, "Panier", user.uid);
-
+ 
         try {
             // Get the product owner from the Product collection
             const productDoc = doc(db, "Product", product.id);
             const productSnap = await getDoc(productDoc);
             const productData = productSnap.data();
             const productOwner = productData?.userID; // Fetch the userId of the product owner
-
+ 
             // Get the current cart items and nbroflines count
             const cartSnap = await getDoc(cartRef);
             const cartData = cartSnap.data();
             const currentItems = cartData?.items || [];
             const currentNbrofLines = cartData?.nbroflines || 0;
-
+ 
             // Check if the product already exists in the cart
             const existingProductIndex = currentItems.findIndex(item => item.Product_name === product.Product_name);
-
+ 
             let updatedItems;
-
+ 
             if (existingProductIndex !== -1) {
                 // If product already exists, increment the quantity
                 updatedItems = currentItems.map((item, index) => 
@@ -85,7 +88,7 @@ const Clothing = () => {
                     }
                 ];
             }
-    
+ 
             // Update the user's cart in Firestore and increment nbroflines
             await updateDoc(cartRef, { 
                 items: updatedItems, 
@@ -96,8 +99,12 @@ const Clothing = () => {
             console.error("Error adding product to cart:", error);
         }
     };
-
+ 
     return (
+        <div ><div style={{marginLeft:'31.5%'}}><Barrederecherche /></div>
+        <div style={{ display: 'flex' }}>
+            {/* Sidebar on the left */}
+            <Sidebar />
         <section className="py-12 sm:py-16 lg:py-20" style={{ backgroundColor: '#f1f2f6' }}>
             <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                 <div className="grid grid-cols-2 gap-6 mt-10 lg:mt-16 lg:gap-4 lg:grid-cols-4">
@@ -132,6 +139,7 @@ const Clothing = () => {
                                         <span
                                             className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
                                             onClick={() => handleLearnMore(product)}
+                                            style={{cursor:'pointer'}}
                                         >
                                             Learn More
                                         </span>
@@ -143,7 +151,8 @@ const Clothing = () => {
                 </div>
             </div>
         </section>
+        </div></div>
     );
 };
-
+ 
 export default Clothing;

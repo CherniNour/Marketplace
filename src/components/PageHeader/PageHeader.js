@@ -3,7 +3,6 @@ import { Avatar, Menu, MenuItem, IconButton, Typography, Button, MDBIcon } from 
 import InventoryIcon from '@mui/icons-material/Inventory'; // Import de l'icône des commandes
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useNavigate } from 'react-router-dom';
-import Barrederecherche from "../Barrederecherche/Barrederecherche";
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -88,32 +87,43 @@ function PageHeader() {
     };
 
     return (
-        <div className="container-fluid px-4 py-5 my-5 text-center position-relative">
-            <div className="d-flex justify-content-center align-items-center mb-4 position-relative">
-            <div className="position-absolute start-0 d-flex flex-column align-items-start">
-    <img
-        src="my-icon.ico"
-        alt="El Hanout Logo"
-        className="logo"
-        style={{ width: '300px', height: '300px', cursor: 'pointer' }}
-        onClick={handleLogoClick}
-    />
-    
-</div>
-    
-                <div className="flex-grow-1">
-                    <h2 className="display-2 fw-bold text-center" >
+        <div>
+            {/* Fixed Navbar Section */}
+            <div
+                className="d-flex justify-content-center align-items-center p-3"
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%', // Full-width
+                    zIndex: 1000,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Less transparent gray
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Subtle shadow for elevation
+                    padding: '10px 20px', // Uniform padding
+                }}
+            >
+                <div className="position-absolute start-0 d-flex flex-column align-items-start">
+                    <img
+                        src="my-icon.ico"
+                        alt="El Hanout Logo"
+                        className="logo"
+                        style={{
+                            width: '150px',
+                            height: '150px',
+                            cursor: 'pointer',
+                            marginLeft: '5%',
+                            marginTop: '0',
+                        }}
+                        onClick={handleLogoClick}
+                    />
+                </div>
+                <div className="flex-grow-1 text-center">
+                    <h2 className="fw-bold" style={{ fontSize: '2.4em', marginLeft:'23%' }}>
                         El Hanout <span className="text-primary">Marketplace</span>
                     </h2>
                 </div>
-            </div>
-    
-            <div
-                className="d-flex justify-content-end align-items-start p-3"
-                style={{ position: 'fixed', top: '30px', right: '20px', zIndex: 1000 }}
-            >
                 <div className="d-flex flex-column align-items-end">
-                    <div className="d-flex align-items-center mb-3" style={{ fontSize: '1.1em' }}>
+                    <div className="d-flex align-items-center mb-3" style={{ fontSize: '1.1em', marginTop: '12px' }}>
                         <IconButton onClick={handleAvatarClick} style={{ transform: 'scale(1.2)' }}>
                             <Avatar alt={userName} style={{ width: 40, height: 40 }}>
                                 {!isLoading ? initials : ''}
@@ -130,7 +140,7 @@ function PageHeader() {
                             <InventoryIcon />
                         </IconButton>
                         <IconButton
-                            onClick={handleAddProductClick} // Handle the add product action
+                            onClick={handleAddProductClick}
                             aria-label="Add Product"
                             style={{ marginLeft: '16px', transform: 'scale(1.2)', color: '#4CAF50' }}
                         >
@@ -138,7 +148,7 @@ function PageHeader() {
                         </IconButton>
                         {isAdmin && (
                             <IconButton
-                                onClick={handleAdminPageClick} // Handle admin page action
+                                onClick={handleAdminPageClick}
                                 aria-label="Admin Page"
                                 style={{ marginLeft: '16px', transform: 'scale(1.2)', color: '#FF5722' }}
                             >
@@ -156,42 +166,34 @@ function PageHeader() {
                             </span>
                         </IconButton>
                     </div>
-                    <br></br>
-                    <div
-        className="search-bar-container"
-        style={{
-            width: '100%',
-            maxWidth: '300px',
-            marginTop: '-20px', // Adjusted to move it up
-        }}
-    >
-        <Barrederecherche />
-    </div>
                 </div>
             </div>
     
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={() => setAnchorEl(null)}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
+            {/* Main Content Section */}
+            <div
+                className="container-fluid px-4 py-5 my-5 text-center position-relative"
+                style={{ marginTop: '80px' }} // Prevent overlap with the fixed navbar
             >
-                <MenuItem onClick={handleChange}>My profile</MenuItem>
-                <MenuItem onClick={handleLogout} style={{ color: 'red' }}>
-                    Log out
-                </MenuItem>
-            </Menu>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={() => setAnchorEl(null)}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                >
+                    <MenuItem onClick={handleChange}>My profile</MenuItem>
+                    <MenuItem onClick={handleLogout} style={{ color: 'red' }}>
+                        Log out
+                    </MenuItem>
+                </Menu>
+            </div>
         </div>
     );
-    
-    
 }
-
-export default PageHeader;
+export default PageHeader;    
