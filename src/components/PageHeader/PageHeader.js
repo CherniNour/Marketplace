@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, Menu, MenuItem, IconButton, Typography, Button, MDBIcon } from '@mui/material';
-import InventoryIcon from '@mui/icons-material/Inventory'; // Import de l'icône des commandes
+import { Avatar, Menu, MenuItem, IconButton, Typography } from '@mui/material';
+import InventoryIcon from '@mui/icons-material/Inventory'; // Icône des commandes
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import './pageheader.css';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+
 function PageHeader() {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -82,6 +83,7 @@ function PageHeader() {
     const handleAdminPageClick = () => {
         navigate("/admin");
     };
+
     const handleLogoClick = () => {
         navigate("/home");
     };
@@ -95,11 +97,11 @@ function PageHeader() {
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    width: '100%', // Full-width
+                    width: '100%',
                     zIndex: 1000,
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Less transparent gray
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Subtle shadow for elevation
-                    padding: '10px 20px', // Uniform padding
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                    padding: '10px 20px',
                 }}
             >
                 <div className="position-absolute start-0 d-flex flex-column align-items-start">
@@ -118,7 +120,7 @@ function PageHeader() {
                     />
                 </div>
                 <div className="flex-grow-1 text-center">
-                    <h2 className="fw-bold" style={{ fontSize: '2.4em', marginLeft:'23%' }}>
+                    <h2 className="fw-bold" style={{ fontSize: '2.4em', marginLeft: '23%' }}>
                         El Hanout <span className="text-primary">Marketplace</span>
                     </h2>
                 </div>
@@ -168,7 +170,7 @@ function PageHeader() {
                     </div>
                 </div>
             </div>
-    
+
             {/* Main Content Section */}
             <div
                 className="container-fluid px-4 py-5 my-5 text-center position-relative"
@@ -196,4 +198,5 @@ function PageHeader() {
         </div>
     );
 }
-export default PageHeader;    
+
+export default PageHeader;

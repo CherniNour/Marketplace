@@ -53,8 +53,7 @@ const DashboardPage = () => {
   return (
     <div>
       <h2>Tableau de Bord Power BI</h2>
-      <iframe title="elhanouut" width="600" height="373.5" src="https://app.powerbi.com/groups/me/reports/6268cc6b-ddce-44d6-a7ad-a6ecd3402046?ctid=dbd6664d-4eb9-46eb-99d8-5c43ba153c61&pbi_source=linkShare" frameborder="0" allowFullScreen="true"></iframe>
-    </div>
+      <iframe title="elhanouut" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNWEwNjJlZDctZDY2ZS00YTYwLWE3MjAtNWEzOWQ5NDM1NzBjIiwidCI6ImRiZDY2NjRkLTRlYjktNDZlYi05OWQ4LTVjNDNiYTE1M2M2MSIsImMiOjl9" frameborder="0" allowFullScreen="true"></iframe>    </div>
   );
 };
  
