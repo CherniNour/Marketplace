@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './global.css'; // CSS for responsiveness
-import './i18n'; // Ensure i18n configuration is imported
 import { CartProvider } from './components/CartContext/CartContext';
 import PacmanLoader from './components/PacmanLoader/PacmanLoader';
 
