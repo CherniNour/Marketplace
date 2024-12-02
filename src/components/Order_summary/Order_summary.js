@@ -6,7 +6,7 @@ import { doc, getDoc, collection, getDocs, addDoc, deleteDoc, updateDoc } from '
 import emailjs from 'emailjs-com'; // EmailJS library
 import './Order_summary.css';
 
-export default function Confirm_order() {
+export default function ConfirmOrder() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     username: '',

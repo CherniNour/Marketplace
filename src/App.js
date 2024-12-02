@@ -11,7 +11,7 @@ import HomePage from './components/HomePage/HomePage';
 import WelcomePage from './components/WelcomePage/WelcomePage';
 import Cart from './components/Cart/Cart';
 import Update from './components/Update/Update';
-import Add_product from './components/Add_product/Add_product';
+import Add_product from './components/Add_product/AddProduct.js';
 import AdminPage from './components/AdminPage/AdminPage';
 import Research from './components/Research/Research';
 import OrdersList from './components/Order_tracking/Order_list';
