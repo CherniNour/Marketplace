@@ -5,7 +5,7 @@ import { auth, db } from "../../firebase.config";
 import { doc, updateDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
-import { Helmet } from 'react-helmet';
+import { Helmet } from "react-helmet";
 import Barrederecherche from "../Barrederecherche/Barrederecherche";
 
 const AllProducts = ({ selectedCategory }) => {
@@ -14,11 +14,11 @@ const AllProducts = ({ selectedCategory }) => {
 
   const [allProducts, setAllProducts] = useState([]);
   const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [metaKeywords, setMetaKeywords] = useState("");
   const [selectedFilters, setSelectedFilters] = useState({
     category: [],
-    price: [0, 500],
+    price: [0, 500], // Default price range
   });
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -32,6 +32,10 @@ const AllProducts = ({ selectedCategory }) => {
         const prices = productsList.map((product) => parseFloat(product.price));
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
+
+        // Extract product names for meta keywords
+        const productNames = productsList.map((product) => product.Product_name).join(", ");
+        setMetaKeywords(productNames);
 
         setAllProducts(productsList);
         setDisplayedProducts(productsList);
@@ -73,7 +77,10 @@ const AllProducts = ({ selectedCategory }) => {
     setDisplayedProducts(allProducts);
     setSelectedFilters({
       category: [],
-      price: [Math.min(...allProducts.map((p) => parseFloat(p.price))), Math.max(...allProducts.map((p) => parseFloat(p.price)))],
+      price: [
+        Math.min(...allProducts.map((p) => parseFloat(p.price))),
+        Math.max(...allProducts.map((p) => parseFloat(p.price))),
+      ],
     });
   };
 
@@ -140,12 +147,14 @@ const AllProducts = ({ selectedCategory }) => {
   };
 
   return (
-    
     <div>
       <Helmet>
-      <title>El Hanout - Marketplace for Electronics, Clothing, Sports and Outdoors & More</title>
-      <meta name="description" content={`Explore and shop the best ${selectedCategory} products at El Hanout.`} />
-        <meta name="keywords" content={`${selectedCategory}, shop ${selectedCategory}, buy ${selectedCategory}`} />
+        <title>{`El Hanout - ${selectedCategory || "All Products"}`}</title>
+        <meta
+          name="description"
+          content={`Explore and shop the best ${selectedCategory || "products"} at El Hanout.`}
+        />
+        <meta name="keywords" content={metaKeywords} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={`https://www.elhanout.com/${selectedCategory}`} />
       </Helmet>
