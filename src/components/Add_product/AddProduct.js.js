@@ -22,13 +22,6 @@ function Add_product() {
   const { Product_name, product_image, price, description, category } = formData;
   const navigate = useNavigate();
 
-  // Default categories
-  const defaultCategories = [
-    { id: 'default1', name: 'Electronics' },
-    { id: 'default2', name: 'Clothing' },
-    { id: 'default3', name: 'Sports & Outdoors' },
-  ];
-
   // Fetch categories from Firestore
   useEffect(() => {
     const fetchCategories = async () => {
@@ -41,8 +34,7 @@ function Add_product() {
           ...doc.data(),
         }));
 
-        // Combine default categories with fetched categories
-        setCategories([...defaultCategories, ...categoryList]);
+        setCategories(categoryList); // Use only fetched categories
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -58,48 +50,44 @@ function Add_product() {
     setLoading(true);
 
     try {
-      // Get the current user's ID
-      const userID = auth.currentUser ?.uid;
+      const userID = auth.currentUser?.uid;
 
       if (!userID) {
-        console.error('User  is not authenticated');
+        console.error('User is not authenticated');
         setLoading(false);
         return;
       }
 
-      // Create the product data to be saved in Firestore
       const productRef = collection(db, 'Product');
-      
-      // Convert image to base64 string
+
       let imageBase64 = '';
       if (product_image) {
         const reader = new FileReader();
         reader.onloadend = async () => {
           imageBase64 = reader.result;
-          
-          // Save product data including the base64 image string and userID
+
           await addDoc(productRef, {
             Product_name,
             price,
             description,
             category,
-            image: imageBase64, // Storing the image as base64 string
-            userID, // Save the current user's ID
+            image: imageBase64,
+            userID,
           });
 
           console.log('Product added to Firestore');
           setLoading(false);
-          setShowAlert(true); // Show the alert
+          setShowAlert(true);
           setTimeout(() => {
-            setShowAlert(false); // Hide alert after 3 seconds
-            navigate('/home'); // Redirect after success
+            setShowAlert(false);
+            navigate('/home');
           }, 3000);
         };
         reader.onerror = (error) => {
           console.error('Error reading image file', error);
           setLoading(false);
         };
-        reader.readAsDataURL(product_image); // Convert image to base64
+        reader.readAsDataURL(product_image);
       }
     } catch (error) {
       console.error('Error saving product:', error);
@@ -134,7 +122,7 @@ function Add_product() {
       <div className='container mt-5'>
         <header>
           <h2 className='text-center mb-4'>
-            Add New Product
+            Add your product
           </h2>
         </header>
 

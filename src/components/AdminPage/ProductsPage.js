@@ -18,17 +18,26 @@ function ProductsPage() {
 
         for (const productDoc of productSnapshot.docs) {
           const productData = productDoc.data();
-          const userID = productData.userID; // Assuming `userID` field exists in the Product document
+          const userID = productData.userID; // Get userID from the Product document
 
-          // Fetch user details using the userID
-          const userDocRef = doc(db, 'Users', userID); // Assuming the Users collection contains user details
-          const userDoc = await getDoc(userDocRef);
-          const userName = userDoc.exists() ? userDoc.data().name : 'Unknown User'; // Default name if user doesn't exist
+          let username = 'Unknown User'; // Default value in case of issues
+          if (userID) {
+            try {
+              const userDocRef = doc(db, 'User', userID); // Reference to the user document in Users collection
+              const userDoc = await getDoc(userDocRef);
+
+              if (userDoc.exists()) {
+                username = userDoc.data().username; // Fetch the username
+              }
+            } catch (userError) {
+              console.error(`Error fetching user with ID ${userID}:`, userError);
+            }
+          }
 
           productList.push({
             id: productDoc.id,
             ...productData,
-            userName, // Add the userName field to the product data
+            username, // Attach the product owner's username
           });
         }
 
@@ -79,7 +88,7 @@ function ProductsPage() {
             <th>Description</th>
             <th>Price</th>
             <th>Image</th>
-            <th>User</th> {/* Add a column for user name */}
+            <th>Product Owner</th> 
             <th>Actions</th>
           </tr>
         </thead>
@@ -98,7 +107,7 @@ function ProductsPage() {
                     'No image'
                   )}
                 </td>
-                <td>{product.userName}</td> {/* Display the user name */}
+                <td>{product.username}</td> {/* Display the fetched user name */}
                 <td>
                   <button
                     onClick={() => handleDelete(product.id)}

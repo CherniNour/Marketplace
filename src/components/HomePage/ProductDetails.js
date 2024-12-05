@@ -5,6 +5,7 @@ import Footer from '../Footer/Footer';
 import { useCart } from '../CartContext/CartContext';
 import { auth, db } from '../../firebase.config';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { Helmet } from 'react-helmet';
 import { FaShoppingCart } from 'react-icons/fa'; // Import cart icon from react-icons
 
 const ProductDetails = () => {
@@ -95,6 +96,13 @@ const ProductDetails = () => {
     <>
       <PageHeader />
       <div className="container my-5 py-3">
+      <Helmet>
+        <title>{`${product.Product_name} - Buy Online`}</title>
+        <meta name="description" content={product.description} />
+        <meta name="keywords" content={`${product.Product_name}, ${product.category}, buy ${product.Product_name}, online shopping`} />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={`https://www.elhanout.com/product/${product.id}`} />
+      </Helmet>
         <div className="row">
           <div className="col-md-6 d-flex justify-content-center mx-auto product">
             <img

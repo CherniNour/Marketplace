@@ -1,21 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PageHeader from '../PageHeader/PageHeader';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { Helmet } from 'react-helmet';
+
 
 function HomePage() {
-    // Hook pour utiliser les traductions
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     return (
         <div>
+            <Helmet>
+                <title>El Hanout - Marketplace for Electronics, Clothing, Sports and Outdoors & More</title>
+                <meta name="description" content="Browse and buy the best products in electronics, clothing, sports and much more from El Hanout marketplace." />
+                <meta name="keywords" content="electronics, clothing, sports, marketplace, online store, buy products, el hanout" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href="https://www.elhanout.com/home" />
+            </Helmet>
             {/* Header */}
-            <PageHeader /> {/* Transmet la traduction à PageHeader */}
+            <PageHeader />
 
-            {/* Navbar */}
-            <Navbar />
+            {/* Navbar with category selection */}
+            <Navbar onCategoryChange={setSelectedCategory} />
 
-            {/* Contenu principal */}
-            
             {/* Footer */}
             <Footer />
         </div>

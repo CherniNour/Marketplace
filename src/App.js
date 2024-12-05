@@ -25,7 +25,7 @@ function App() {
     // Stop the loader after 3 seconds
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -42,7 +42,7 @@ function App() {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignUpForm />} />
               <Route path="/home" element={<HomePage />} />
-              <Route path="/Change info" element={<Update />} />
+              <Route path="/My profile" element={<Update />} />
               <Route path="/Your cart" element={<Cart />} />
               <Route path="/Add your product" element={<Add_product />} />
               <Route path="/Admin" element={<AdminPage />} />
@@ -50,7 +50,7 @@ function App() {
               <Route path="/PacmanLoader" element={<PacmanLoader />} />
               <Route path="/ProductResearch" element={<Research />} />
               <Route path="/order-summary" element={<Confirm_order />} />
-              <Route path="/Product-Details" element={<Product />} />
+              <Route path="/Product" element={<Product />} />
             </Routes>
           )}
         </div>

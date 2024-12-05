@@ -41,7 +41,8 @@ const Sidebar = ({
         querySnapshot.forEach((doc) => {
           const product = doc.data();
           if (product.category) {
-            uniqueCategories.add(product.category);
+            // Normalize category name to lowercase to avoid duplicates due to case differences
+            uniqueCategories.add(product.category.toLowerCase());
           }
           if (product.price) {
             const price = parseFloat(product.price);
@@ -52,7 +53,10 @@ const Sidebar = ({
           }
         });
 
-        setCategories(Array.from(uniqueCategories));
+        // Convert unique categories to an array and map back to original case
+        const categoriesArray = Array.from(uniqueCategories);
+        setCategories(categoriesArray);
+
         setPriceRange([minPrice, maxPrice]);
         setLocalFilters({
           ...localFilters,

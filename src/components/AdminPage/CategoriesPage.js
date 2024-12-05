@@ -4,12 +4,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc, Timestamp } from 'firebase
 import PacmanLoader from 'react-spinners/PacmanLoader';
 
 function CategoriesPage() {
-  const [categories, setCategories] = useState([
-    { id: 'default-1', name: 'All', description: 'Includes all categories' },
-    { id: 'default-2', name: 'Electronics', description: 'All Electronics ' },
-    { id: 'default-3', name: 'Clothing', description: 'Dress to impress' },
-    { id: 'default-4', name: 'Sports & Outdoors', description: 'Sports and outdoor activities' },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -29,16 +24,7 @@ function CategoriesPage() {
           ...doc.data(),
         }));
 
-        // Merge default categories with Firestore categories, avoiding duplicates
-        const mergedCategories = [
-          ...categories,
-          ...fetchedCategories.filter(
-            fetched =>
-              !categories.some(defaultCategory => defaultCategory.name === fetched.name)
-          ),
-        ];
-
-        setCategories(mergedCategories);
+        setCategories(fetchedCategories);
       } catch (error) {
         console.error("Error fetching categories:", error);
         setError("Error loading data. Please try again later.");
@@ -127,16 +113,12 @@ function CategoriesPage() {
                 <td>{category.name}</td>
                 <td>{category.description || 'No description'}</td>
                 <td>
-                  {category.id.startsWith('default') ? (
-                    <span>N/A</span> // Prevent deletion of default categories
-                  ) : (
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleDeleteCategory(category.id)}
+                    className="btn btn-danger btn-sm"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))

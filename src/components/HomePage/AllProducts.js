@@ -5,19 +5,20 @@ import { auth, db } from "../../firebase.config";
 import { doc, updateDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
+import { Helmet } from 'react-helmet';
 import Barrederecherche from "../Barrederecherche/Barrederecherche";
- 
-const AllProducts = () => {
+
+const AllProducts = ({ selectedCategory }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
- 
+
   const [allProducts, setAllProducts] = useState([]);
   const [displayedProducts, setDisplayedProducts] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     category: [],
     price: [0, 500],
   });
- 
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -27,26 +28,35 @@ const AllProducts = () => {
           id: doc.id,
           ...doc.data(),
         }));
- 
-        // Determine min and max price for filters
+
         const prices = productsList.map((product) => parseFloat(product.price));
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
- 
+
         setAllProducts(productsList);
-        setDisplayedProducts(productsList); // Initialize displayed products
+        setDisplayedProducts(productsList);
         setSelectedFilters((prev) => ({
           ...prev,
-          price: [minPrice, maxPrice], // Update price range dynamically
+          price: [minPrice, maxPrice],
         }));
       } catch (error) {
         console.error("Error fetching products from Firestore:", error);
       }
     };
- 
+
     fetchProducts();
   }, []);
- 
+
+  useEffect(() => {
+    if (selectedCategory === "All" || !selectedCategory) {
+      setDisplayedProducts(allProducts);
+    } else {
+      setDisplayedProducts(
+        allProducts.filter((product) => product.category === selectedCategory)
+      );
+    }
+  }, [selectedCategory, allProducts]);
+
   const applyFilters = (filters) => {
     const filtered = allProducts.filter((product) => {
       const inCategory =
@@ -58,43 +68,43 @@ const AllProducts = () => {
     });
     setDisplayedProducts(filtered);
   };
- 
+
   const resetProducts = () => {
-    setDisplayedProducts(allProducts); // Reset to show all products
+    setDisplayedProducts(allProducts);
     setSelectedFilters({
       category: [],
       price: [Math.min(...allProducts.map((p) => parseFloat(p.price))), Math.max(...allProducts.map((p) => parseFloat(p.price)))],
     });
   };
- 
+
   const handleAddToCart = async (product) => {
     const user = auth.currentUser;
     if (!user) {
       alert("Please log in to add items to your cart.");
       return;
     }
- 
+
     addToCart(product);
- 
+
     const cartRef = doc(db, "Panier", user.uid);
- 
+
     try {
       const productDoc = doc(db, "Product", product.id);
       const productSnap = await getDoc(productDoc);
       const productData = productSnap.data();
       const productOwner = productData?.userID;
- 
+
       const cartSnap = await getDoc(cartRef);
       const cartData = cartSnap.data();
       const currentItems = cartData?.items || [];
       const currentNbrofLines = cartData?.nbroflines || 0;
- 
+
       const existingProductIndex = currentItems.findIndex(
         (item) => item.Product_name === product.Product_name
       );
- 
+
       let updatedItems;
- 
+
       if (existingProductIndex !== -1) {
         updatedItems = currentItems.map((item, index) =>
           index === existingProductIndex
@@ -114,7 +124,7 @@ const AllProducts = () => {
           },
         ];
       }
- 
+
       await updateDoc(cartRef, {
         items: updatedItems,
         nbroflines: currentNbrofLines + 1,
@@ -124,13 +134,21 @@ const AllProducts = () => {
       console.error("Error adding product to cart:", error);
     }
   };
- 
+
   const handleLearnMore = (product) => {
-    navigate("/Product-Details", { state: { product } });
+    navigate("/Product", { state: { product } });
   };
- 
+
   return (
+    
     <div>
+      <Helmet>
+      <title>El Hanout - Marketplace for Electronics, Clothing, Sports and Outdoors & More</title>
+      <meta name="description" content={`Explore and shop the best ${selectedCategory} products at El Hanout.`} />
+        <meta name="keywords" content={`${selectedCategory}, shop ${selectedCategory}, buy ${selectedCategory}`} />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={`https://www.elhanout.com/${selectedCategory}`} />
+      </Helmet>
       <div style={{ marginLeft: "31.5%" }}>
         <Barrederecherche />
       </div>
@@ -201,5 +219,5 @@ const AllProducts = () => {
     </div>
   );
 };
- 
+
 export default AllProducts;
