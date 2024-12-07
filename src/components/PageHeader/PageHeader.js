@@ -60,7 +60,7 @@ function PageHeader() {
     };
 
     const handleChange = () => {
-        navigate("/change info");
+        navigate("/My profile");
     };
 
     const handleCartClick = () => {
