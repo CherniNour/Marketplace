@@ -11,7 +11,7 @@ import {
   MDBTypography,
 } from 'mdb-react-ui-kit';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { doc, getDoc } from 'firebase/firestore';
 
 function LoginForm() {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
-import { auth, db } from '../../firebase.config'; // Import auth and db from Firebase config
+import { auth, db } from '../../firebase.config.mjs'; // Import auth and db from Firebase config
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer";
 import 'bootstrap/dist/css/bootstrap.min.css';

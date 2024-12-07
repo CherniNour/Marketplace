@@ -6,7 +6,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext/CartContext';
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import './pageheader.css';

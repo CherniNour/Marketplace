@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from '../Footer/Footer';
-import { db } from '../../firebase.config'; // Assurez-vous d'importer la config Firestore
+import { db } from '../../firebase.config.mjs'; // Assurez-vous d'importer la config Firestore
 import { collection, query, where, getDocs } from 'firebase/firestore'; // Import des fonctions Firestore
 import { useNavigate } from 'react-router-dom';
 

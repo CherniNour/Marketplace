@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MDBTabs, MDBTabsItem, MDBTabsLink } from 'mdb-react-ui-kit';
 import AllProducts from '../HomePage/AllProducts';
-import { db } from '../../firebase.config';
+import { db } from '../../firebase.config.mjs';
 import { collection, getDocs } from 'firebase/firestore';
 
 const Navbar = ({ onCategoryChange }) => {

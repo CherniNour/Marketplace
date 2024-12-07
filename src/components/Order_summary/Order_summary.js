@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MDBBtn, MDBCard, MDBCardBody, MDBCol, MDBIcon, MDBInput, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { doc, getDoc, collection, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com'; // EmailJS library
 import './Order_summary.css';

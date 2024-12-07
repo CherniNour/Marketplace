@@ -7,7 +7,7 @@ import {
 import { useCart } from '../CartContext/CartContext';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer"; 
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { doc, getDoc, updateDoc, arrayRemove, collection,addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';

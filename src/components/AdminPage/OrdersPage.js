@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { db } from '../../firebase.config';
+import { db } from '../../firebase.config.mjs';
 import { collection, getDocs, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import PacmanLoader from 'react-spinners/PacmanLoader';
 

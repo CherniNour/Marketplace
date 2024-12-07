@@ -15,7 +15,7 @@ function HomePage() {
                 <meta name="description" content="Browse and buy the best products in electronics, clothing, sports and much more from El Hanout marketplace." />
                 <meta name="keywords" content="electronics, clothing, sports, marketplace, online store, buy products, el hanout" />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href="https://www.elhanout.com/home" />
+                <link rel="canonical" href="https://el-hanout-57170.web.app/home" />
             </Helmet>
             {/* Header */}
             <PageHeader />

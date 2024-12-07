@@ -1,5 +1,9 @@
 [
   {
+    "id": "8J0MivQuQpTrkSHJqpFW",
+    "name": "Sports_Outdoors"
+  },
+  {
     "id": "GcqHAWRH1Hpfrq3hlVY5",
     "name": "Toys",
     "description": "Toys for kids ! ",
@@ -7,5 +11,13 @@
       "_seconds": 1732570072,
       "_nanoseconds": 900000000
     }
+  },
+  {
+    "id": "XCTUqcbHHRllRaI9aOHi",
+    "name": "electronics"
+  },
+  {
+    "id": "xCh1eoB2G8jD8L1QV3p7",
+    "name": "clothing"
   }
 ]

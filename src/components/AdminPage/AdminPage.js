@@ -3,9 +3,10 @@ import PageHeader from '../PageHeader/PageHeader';
 import Footer from "../Footer/Footer";
 import ClientsPage from './ClientsPage';
 import DashboardPage from './DashboardPage';
+import RealTimeDashboardPage from './RealTimeDashboardPage'; // Import the new Real-Time Dashboard component
 import ProductsPage from './ProductsPage';
 import OrdersPage from './OrdersPage';
-import CategoriesPage from './CategoriesPage';  // Import the CategoriesPage
+import CategoriesPage from './CategoriesPage';
 
 // Importer les composants de React Bootstrap
 import { Container, Row, Col, Nav, Navbar } from 'react-bootstrap';
@@ -55,6 +56,12 @@ function Admin() {
                 >
                   DashboardPage
                 </Nav.Link>
+                <Nav.Link
+                  onClick={() => setSelectedTab('realTimeDashboard')}
+                  style={{ color: selectedTab === 'realTimeDashboard' ? '#17a2b8' : 'white' }}
+                >
+                  Real-Time Dashboard
+                </Nav.Link>
               </Nav>
             </Navbar>
           </Col>
@@ -68,6 +75,7 @@ function Admin() {
               {selectedTab === 'produits' && <ProductsPage />}
               {selectedTab === 'commandes' && <OrdersPage />}
               {selectedTab === 'dashboard' && <DashboardPage />}
+              {selectedTab === 'realTimeDashboard' && <RealTimeDashboardPage />}
             </div>
           </Col>
         </Row>

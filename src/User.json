@@ -25,5 +25,32 @@
     "postalCode": "1234",
     "email": "nourcherni357@gmail.com",
     "role": "client"
+  },
+  {
+    "id": "kigu0fowpaY4BvY1PaFMaoXrXxQ2",
+    "username": "firas",
+    "phone": "58131885",
+    "address": "yasminette",
+    "postalCode": "2096",
+    "email": "lasmer861@gmail.com",
+    "role": "client"
+  },
+  {
+    "id": "nvfgkd0FbzVfB8FSlnw2Xzd08hq1",
+    "username": "AzerSahraoui",
+    "phone": "21456987",
+    "address": "Zahrouni",
+    "postalCode": "7598",
+    "email": "azerzizou123@gmail.com",
+    "role": "client"
+  },
+  {
+    "id": "uHWsr8OEAHcDgC8dYuCHsqiHyqH3",
+    "username": "dhimoo",
+    "phone": "55270022",
+    "address": "نهج تورتسلي",
+    "postalCode": "1080",
+    "email": "boukhdhirdhia@gmail.com",
+    "role": "client"
   }
 ]

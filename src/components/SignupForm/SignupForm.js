@@ -9,7 +9,7 @@ import {
   MDBInput,
   MDBRow,
 } from 'mdb-react-ui-kit';
-import { auth, db } from '../../firebase.config'; // Adjust the path as needed
+import { auth, db } from '../../firebase.config.mjs'; // Adjust the path as needed
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com'; // EmailJS library

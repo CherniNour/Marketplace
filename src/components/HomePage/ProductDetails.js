@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import PageHeader from '../PageHeader/PageHeader';
 import Footer from '../Footer/Footer';
 import { useCart } from '../CartContext/CartContext';
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { Helmet } from 'react-helmet';
 import { FaShoppingCart } from 'react-icons/fa'; // Import cart icon from react-icons

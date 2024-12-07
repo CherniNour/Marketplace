@@ -50,7 +50,7 @@ function App() {
               <Route path="/PacmanLoader" element={<PacmanLoader />} />
               <Route path="/ProductResearch" element={<Research />} />
               <Route path="/order-summary" element={<Confirm_order />} />
-              <Route path="/Product" element={<Product />} />
+              <Route path="/product/:slug" element={<Product />} />
             </Routes>
           )}
         </div>

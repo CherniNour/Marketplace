@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { db } from "../../firebase.config"; // Firebase config file
+import { db } from "../../firebase.config.mjs"; // Firebase config file
 import { collection, onSnapshot } from "firebase/firestore";
 import axios from "axios";
  

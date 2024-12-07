@@ -6,7 +6,7 @@ import { Popper, useAutocomplete } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { grey } from '@mui/material/colors';
-import { db } from '../../firebase.config';
+import { db } from '../../firebase.config.mjs';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { useForkRef } from '@mui/material/utils';
  

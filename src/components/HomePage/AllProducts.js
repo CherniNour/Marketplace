@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./cards.css";
 import { useCart } from "../CartContext/CartContext";
-import { auth, db } from "../../firebase.config";
+import { auth, db } from "../../firebase.config.mjs";
 import { doc, updateDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
@@ -141,10 +141,16 @@ const AllProducts = ({ selectedCategory }) => {
       console.error("Error adding product to cart:", error);
     }
   };
-
-  const handleLearnMore = (product) => {
-    navigate("/Product", { state: { product } });
+  const generateSlug = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/ /g, "-")
+      .replace(/[^\w-]+/g, "");
   };
+  
+  const handleLearnMore = (product) => {
+    const slug = generateSlug(product.Product_name);
+    navigate(`/product/${slug}`, { state: { product } });
 
   return (
     <div>
@@ -156,7 +162,7 @@ const AllProducts = ({ selectedCategory }) => {
         />
         <meta name="keywords" content={metaKeywords} />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={`https://www.elhanout.com/${selectedCategory}`} />
+        <link rel="canonical" href={`https://el-hanout-57170.web.app/home/${selectedCategory}`} />
       </Helmet>
       <div style={{ marginLeft: "31.5%" }}>
         <Barrederecherche />
@@ -186,6 +192,7 @@ const AllProducts = ({ selectedCategory }) => {
                   >
                     <a href="" title={product.Product_name}>
                       <div className="overflow-hidden rounded-md">
+                        
                         <img
                           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           src={product.image}
@@ -228,5 +235,6 @@ const AllProducts = ({ selectedCategory }) => {
     </div>
   );
 };
+}
 
 export default AllProducts;

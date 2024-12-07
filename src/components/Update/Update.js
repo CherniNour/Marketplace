@@ -1,7 +1,7 @@
 //update
 
 import React, { useState, useEffect } from 'react';
-import { auth, db } from '../../firebase.config';
+import { auth, db } from '../../firebase.config.mjs';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc, setDoc,updateDoc } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
 import PageHeader from '../PageHeader/PageHeader';

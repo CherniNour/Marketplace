@@ -11,7 +11,7 @@ import {
   MDBTypography,
 } from "mdb-react-ui-kit";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase.config"; // Chemin vers votre configuration Firebase
+import { db } from "../../firebase.config.mjs"; // Chemin vers votre configuration Firebase
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import "./Order_tracking.css";
  

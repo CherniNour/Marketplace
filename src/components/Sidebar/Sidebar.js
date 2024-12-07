@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase.config"; // Adjust the import based on your structure
+import { db } from "../../firebase.config.mjs"; // Adjust the import based on your structure
 
 const Sidebar = ({
   selectedFilters,

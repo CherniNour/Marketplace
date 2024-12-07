@@ -1,7 +1,7 @@
  
 import React, { useState, useEffect } from "react";
 import { MDBListGroup, MDBListGroupItem, MDBBadge, MDBContainer } from "mdb-react-ui-kit";
-import { auth, db } from "../../firebase.config";
+import { auth, db } from "../../firebase.config.mjs";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import Order from "./Order_tracking"; 
 import PageHeader from "../PageHeader/PageHeader";
